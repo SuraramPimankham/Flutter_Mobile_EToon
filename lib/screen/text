@@ -1,0 +1,250 @@
+
+  // แอ็กชัน
+  Widget _buildAction() {
+    return Container(
+      width: 400,
+      height: 338,
+      color: Color.fromARGB(255, 241, 129, 166),
+      margin: EdgeInsets.all(10),
+      padding: EdgeInsets.all(20),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'แอ็กชัน',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  // ตรงนี้คุณสามารถระบุการดำเนินการเมื่อปุ่ม "More" ถูกคลิก
+                  print('More button clicked');
+                },
+                child: Text(
+                  'More',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Container(
+            height: 250,
+            child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+              stream:
+                  FirebaseFirestore.instance.collection('storys').snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text('เกิดข้อผิดพลาด: ${snapshot.error.toString()}'),
+                  );
+                }
+                final documents = snapshot.data?.docs;
+                if (documents == null || documents.isEmpty) {
+                  return Center(
+                    child: Text('ไม่พบข้อมูลในคอลเลกชัน "storys"'),
+                  );
+                }
+
+                // Return the ListView.builder here
+                return ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: documents.length,
+                  itemBuilder: (context, index) {
+                    final document = documents[index];
+                    final data = document.data() as Map<String, dynamic>;
+                    final title = data['title'];
+                    final imageUrl = data['imageUrl'];
+
+                    // Define the desired size for the image container and card
+                    final itemWidth = 150.0;
+                    final itemHeight = 250.0;
+
+                    return GestureDetector(
+                      onTap: () {
+                        _showAction(context, title, imageUrl);
+                      },
+                      child: Container(
+                        width: itemWidth,
+                        height: itemHeight,
+                        margin: EdgeInsets.all(10),
+                        child: Card(
+                          elevation: 5,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(
+                                8.0), // ปรับขนาดมุมของการ์ด
+                            child: Image.network(
+                              imageUrl,
+                              fit: BoxFit
+                                  .cover, // ให้รูปภาพปรับขนาดให้พอดีกับการ์ด
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+void _showAction(BuildContext context, String title, String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('เรื่องยอดนิยม'),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.network(imageUrl),
+              Text('Title: $title'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Close'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Next'),
+            )
+          ],
+        );
+      },
+    );
+  }
+
+
+
+
+  return Container(
+                      width: 150, // Define the desired width for each item
+                      child: Card(
+                        child: Column(
+                          children: [
+                            Image.network(imageUrl),
+                            Text(title),
+                          ],
+                        ),
+                      ),
+                    );
+
+
+
+
+
+
+
+
+
+
+                    // itemCount: documents.length,
+                    // options: CarouselOptions(
+                    //   height: 250,
+                    //   enableInfiniteScroll: true,
+                    // ),
+                    // itemBuilder: (context, index, realIndex) {
+                    //   final document = documents[realIndex];
+                    //   final data = document.data() as Map<String, dynamic>;
+                    //   final title = data['title'];
+                    //   final imageUrl = data['imageUrl'];
+
+                    // return GestureDetector(
+                    //   onTap: () {
+                    //     // TODO: เพิ่มโค้ดเปิด FlipCard ที่นี่
+                    //     // ใช้ FlipCard และ FlipDirection เหมือนกับตัวอย่างก่อนหน้านี้
+                    //   },
+                    //   child: Container(
+                    //     width: 150.0,
+                    //     height: 250.0,
+                    //     margin: EdgeInsets.all(10),
+                    //     child: FlipCard(
+                    //       direction: FlipDirection.HORIZONTAL,
+                    //       front: Card(
+                    //         elevation: 5,
+                    //         child: ClipRRect(
+                    //           borderRadius: BorderRadius.circular(8.0),
+                    //           child: Image.network(
+                    //             imageUrl,
+                    //             fit: BoxFit.cover,
+                    //           ),
+                    //         ),
+                    //       ),
+                    //       back: Card(
+                    //         elevation: 5,
+                    //         color: Colors.blue,
+                    //         child: Center(
+                    //           child: Text(
+                    //             title,
+                    //             style: TextStyle(
+                    //               color: Colors.white,
+                    //               fontSize: 18,
+                    //             ),
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // );
+                    // },
+
+
+                    return ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: documents.length,
+                  itemBuilder: (context, index) {
+                    final document = documents[index];
+                    final data = document.data() as Map<String, dynamic>;
+                    final title = data['title'];
+                    final imageUrl = data['imageUrl'];
+
+                    // Define the desired size for the image container and card
+                    final itemWidth = 150.0;
+                    final itemHeight = 250.0;
+
+                    return GestureDetector(
+                      onTap: () {
+                        _RecommendedStories(context, title, imageUrl);
+                      },
+                      child: Container(
+                        width: itemWidth,
+                        height: itemHeight,
+                        // margin: EdgeInsets.all(10),
+                        child: Card(
+                          elevation: 5,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(
+                                8.0), // ปรับขนาดมุมของการ์ด
+                            child: Image.network(
+                              imageUrl,
+                              fit: BoxFit
+                                  .cover, // ให้รูปภาพปรับขนาดให้พอดีกับการ์ด
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );

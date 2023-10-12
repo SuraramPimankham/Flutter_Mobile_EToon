@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "828435202153",
+    "firebase_url": "https://test-c6db1-default-rtdb.firebaseio.com",
+    "project_id": "test-c6db1",
+    "storage_bucket": "test-c6db1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:828435202153:android:a2ac55f453c8824cf5e2f8",
+        "android_client_info": {
+          "package_name": "com.example.apptoon"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "828435202153-7vsp143fj58o88ea88vln7n57ppuq0uq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD8_tWNt54gaFWqqGqhHalJUDnYaqohm7o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "828435202153-7vsp143fj58o88ea88vln7n57ppuq0uq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
