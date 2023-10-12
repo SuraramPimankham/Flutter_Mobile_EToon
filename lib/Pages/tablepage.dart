@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class MySearchPage extends StatelessWidget {
-  const MySearchPage();
+class MyTablePage extends StatelessWidget {
+  const MyTablePage();
 
   @override
   Widget build(BuildContext context) {

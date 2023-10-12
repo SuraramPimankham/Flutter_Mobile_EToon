@@ -1,7 +1,7 @@
 import 'package:apptoon/Pages/coinpage.dart';
 import 'package:apptoon/Pages/homepage.dart';
 import 'package:apptoon/Pages/profilepage.dart';
-import 'package:apptoon/Pages/searchpage.dart';
+import 'package:apptoon/Pages/tablepage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:apptoon/screen/login.dart';
@@ -32,12 +32,11 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       body: IndexedStack(
         index: _selectedTab,
         children: <Widget>[
           MyHomePage(),
-          MySearchPage(),
+          MyTablePage(),
           MyCoinPage(),
           MyProfilePage()
         ],
@@ -52,7 +51,7 @@ class _HomePageState extends State<HomePage> {
         },
         items: <Widget>[
           Icon(Icons.home, size: 30),
-          Icon(Icons.search, size: 30),
+          Icon(Icons.table_chart, size: 30),
           Icon(Icons.monetization_on, size: 30),
           Icon(Icons.person, size: 30),
         ],

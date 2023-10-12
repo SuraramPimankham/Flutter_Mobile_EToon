@@ -140,6 +140,9 @@ class MyHomePage extends StatelessWidget {
                   itemBuilder: (context, index) {
                     final document = documents[index];
                     final data = document.data() as Map<String, dynamic>;
+
+                    final id = data['id'];
+                    final author = data['author'];
                     final title = data['title'];
                     final imageUrl = data['imageUrl'];
 
@@ -153,6 +156,8 @@ class MyHomePage extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (context) => DetailPage(
+                              id: id,
+                              author: author,
                               title: title,
                               imageUrl: imageUrl,
                             ),
@@ -255,6 +260,8 @@ class MyHomePage extends StatelessWidget {
                     final document = documents[index];
                     final data = document.data() as Map<String, dynamic>;
 
+                    final id = data['id'];
+                    final author = data['author'];
                     final title = data['title'];
                     final imageUrl = data['imageUrl'];
 
@@ -264,6 +271,8 @@ class MyHomePage extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (context) => DetailPage(
+                              id: id,
+                              author: author,
                               title: title,
                               imageUrl: imageUrl,
                             ),

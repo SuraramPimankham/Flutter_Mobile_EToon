@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 
 class DetailPage extends StatelessWidget {
+  final String id;
+  final String author;
   final String title;
   final String imageUrl;
 
   // Constructor สำหรับรับข้อมูลจากหน้าก่อนหน้า
-  DetailPage({required this.title, required this.imageUrl});
+  DetailPage(
+      {required this.id,
+      required this.author,
+      required this.title,
+      required this.imageUrl});
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +28,14 @@ class DetailPage extends StatelessWidget {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 20),
+            Text(
+              'ผู้เขียน: $author',
+              style: TextStyle(fontSize: 18),
+            ),
+            Text(
+              'ID: $id',
+              style: TextStyle(fontSize: 18),
+            ),
             Image.network(
               imageUrl,
               width: 200,
