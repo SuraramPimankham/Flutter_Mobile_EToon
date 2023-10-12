@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class MyCoinPage extends StatefulWidget {
-  const MyCoinPage();
+class MyFavoritePage extends StatefulWidget {
+  const MyFavoritePage();
 
   @override
-  _MyCoinPageState createState() => _MyCoinPageState();
+  _MyFavoritePageState createState() => _MyFavoritePageState();
 }
 
-class _MyCoinPageState extends State<MyCoinPage> {
+class _MyFavoritePageState extends State<MyFavoritePage> {
   @override
   Widget build(BuildContext context) {
     return Center(

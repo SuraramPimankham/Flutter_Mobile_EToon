@@ -1,4 +1,4 @@
-import 'package:apptoon/Pages/coinpage.dart';
+import 'package:apptoon/Pages/favoritepage.dart';
 import 'package:apptoon/Pages/homepage.dart';
 import 'package:apptoon/Pages/profilepage.dart';
 import 'package:apptoon/Pages/tablepage.dart';
@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
         children: <Widget>[
           MyHomePage(),
           MyTablePage(),
-          MyCoinPage(),
+          MyFavoritePage(),
           MyProfilePage()
         ],
       ),
@@ -52,7 +52,7 @@ class _HomePageState extends State<HomePage> {
         items: <Widget>[
           Icon(Icons.home, size: 30),
           Icon(Icons.table_chart, size: 30),
-          Icon(Icons.monetization_on, size: 30),
+          Icon(Icons.favorite, size: 30),
           Icon(Icons.person, size: 30),
         ],
       ),
