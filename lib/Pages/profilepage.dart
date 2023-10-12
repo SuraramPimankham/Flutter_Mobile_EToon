@@ -77,13 +77,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
-                              'UserName : ',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
+                              'User: ${FirebaseAuth.instance.currentUser?.email ?? 'Not logged in'}',
+                              style: TextStyle(fontSize: 18),),
                           ],
                         ),
                       ),
