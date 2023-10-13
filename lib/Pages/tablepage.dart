@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'detailpage.dart'; // Import DetailPage
+import 'package:apptoon/Pages/detailpage.dart';
 
 class MyTablePage extends StatefulWidget {
   const MyTablePage();
@@ -45,7 +45,7 @@ class _MyTablePageState extends State<MyTablePage> {
 
         querySnapshot.docs.forEach((doc) {
           storyData.add({
-            'id': doc.id,
+            'id': doc['id'],
             'author': doc['author'],
             'title': doc['title'],
             'imageUrl': doc['imageUrl'],
@@ -106,7 +106,11 @@ class _MyTablePageState extends State<MyTablePage> {
                         children: storyData.map((data) {
                           return GestureDetector(
                             onTap: () {
-                              print('Clicked on item with ID: ${data['id']}');
+                              print('ID: ${data['id']}');
+                              print('Author: ${data['author']}');
+                              print('Title: ${data['title']}');
+                              print('ImageUrl: ${data['imageUrl']}');
+                              print('Description: ${data['description']}');
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(

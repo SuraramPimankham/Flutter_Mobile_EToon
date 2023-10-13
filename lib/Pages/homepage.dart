@@ -270,6 +270,11 @@ class MyHomePage extends StatelessWidget {
 
                     return GestureDetector(
                       onTap: () {
+                        print('ID: ${data['id']}');
+                        print('Author: ${data['author']}');
+                        print('Title: ${data['title']}');
+                        print('ImageUrl: ${data['imageUrl']}');
+                        print('Description: ${data['description']}');
                         Navigator.push(
                           context,
                           MaterialPageRoute(
