@@ -1,13 +1,16 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
+import 'dart:ui';
+
+import 'package:apptoon/screen/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:apptoon/screen/home.dart';
 
 class LoginPage extends StatelessWidget {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final Duration loginTime = Duration(milliseconds: 2250);
+
+  Duration get loginTime => Duration(milliseconds: 2250);
 
   Future<String?> signUp(String? email, String? password) async {
     try {
@@ -15,15 +18,6 @@ class LoginPage extends StatelessWidget {
         email: email ?? '',
         password: password ?? '',
       );
-
-      await FirebaseFirestore.instance.collection('users').add({
-        'username': email ?? '',
-        'email': email,
-        'password': password,
-        'coin': 0,
-        'favorite': null,
-      });
-
       return null; // Successful sign-up
     } on FirebaseAuthException catch (e) {
       String errorMessage = 'An error occurred';
@@ -44,6 +38,7 @@ class LoginPage extends StatelessWidget {
       );
       return null;
     } on FirebaseAuthException catch (e) {
+      print('Error: $e');
       return e.message;
     }
   }

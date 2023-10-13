@@ -5,13 +5,16 @@ class DetailPage extends StatelessWidget {
   final String author;
   final String title;
   final String imageUrl;
+  final String description;
 
   // Constructor สำหรับรับข้อมูลจากหน้าก่อนหน้า
-  DetailPage(
-      {required this.id,
-      required this.author,
-      required this.title,
-      required this.imageUrl});
+  DetailPage({
+    required this.id,
+    required this.author,
+    required this.title,
+    required this.imageUrl,
+    required this.description,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,31 +22,117 @@ class DetailPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('รายละเอียดเรื่อง'),
       ),
-      body: Center(
+      body: SingleChildScrollView(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              'ชื่อเรื่อง: $title',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            Padding(
+              padding: EdgeInsets.all(5),
+              child: Card(
+                clipBehavior: Clip.antiAliasWithSaveLayer,
+                color: Colors.grey[300],
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.all(2),
+                      child: Column(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              imageUrl,
+                              width: 100,
+                              height: 150,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Title: ',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  title,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Author: ',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  author,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Description: ',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  description,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(right: 10),
+                                child: Icon(
+                                  Icons.favorite_border,
+                                  color: Colors.grey,
+                                  size: 24,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            SizedBox(height: 20),
-            Text(
-              'ผู้เขียน: $author',
-              style: TextStyle(fontSize: 18),
-            ),
-            Text(
-              'ID: $id',
-              style: TextStyle(fontSize: 18),
-            ),
-            Image.network(
-              imageUrl,
-              width: 200,
-              height: 200,
-              fit: BoxFit.cover,
-            ),
-            // ส่วนนี้คือส่วนอื่น ๆ ที่คุณต้องการแสดงในหน้ารายละเอียด
-            // ...
           ],
         ),
       ),
