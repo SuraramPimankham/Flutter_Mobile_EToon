@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'detailpage.dart'; // Import DetailPage
 
 class MyTablePage extends StatefulWidget {
   const MyTablePage();
@@ -9,7 +10,7 @@ class MyTablePage extends StatefulWidget {
 }
 
 class _MyTablePageState extends State<MyTablePage> {
-  String activeButton = 'จ';
+  String activeButton = 'จ'; // กำหนดค่าเริ่มต้นให้ activeButton เป็น 'จ'
   Map<String, String> dayMap = {
     'จ': 'monday',
     'อ': 'tuesday',
@@ -20,43 +21,40 @@ class _MyTablePageState extends State<MyTablePage> {
     'อา': 'sunday',
   };
 
-  // Firestore instance
-  final FirebaseFirestore firestore = FirebaseFirestore.instance;
-
+  final FirebaseFirestore firestore =
+      FirebaseFirestore.instance; // Firestore instance
   List<Map<String, dynamic>> storyData = [];
 
   @override
   void initState() {
     super.initState();
-    fetchStoryData('จ'); // Fetch data initially for 'จ'
+    fetchStoryData('จ'); // เรียกใช้งาน fetchStoryData เมื่อเริ่มต้น
   }
 
-  // Function to fetch data from Firestore
   Future<void> fetchStoryData(String day) async {
     try {
       final QuerySnapshot querySnapshot = await firestore
           .collection('storys')
-          .where('day', isEqualTo: day)
+          .where('day', isEqualTo: dayMap[day])
           .get();
 
       if (querySnapshot.docs.isNotEmpty) {
-        // Clear the existing data
         setState(() {
-          storyData.clear();
+          storyData.clear(); // ล้างข้อมูล storyData ที่มีอยู่
         });
 
-        // Add new data
         querySnapshot.docs.forEach((doc) {
           storyData.add({
             'id': doc.id,
+            'author': doc['author'],
             'title': doc['title'],
             'imageUrl': doc['imageUrl'],
+            'description': doc['description'],
           });
         });
       } else {
-        // No data found
         setState(() {
-          storyData.clear();
+          storyData.clear(); // ล้างข้อมูล storyData ในกรณีที่ไม่มีข้อมูล
         });
       }
     } catch (e) {
@@ -67,7 +65,6 @@ class _MyTablePageState extends State<MyTablePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
       appBar: AppBar(
         title: Text('Table'),
       ),
@@ -75,29 +72,25 @@ class _MyTablePageState extends State<MyTablePage> {
         child: Padding(
           padding: EdgeInsets.all(10.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // ส่วนของปุ่มวัน
               Container(
                 color: Colors.white,
                 padding: EdgeInsets.all(20.0),
-                child: Column(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _buildButton('จ', activeButton == 'จ'),
-                        _buildButton('อ', activeButton == 'อ'),
-                        _buildButton('พ', activeButton == 'พ'),
-                        _buildButton('พฤ', activeButton == 'พฤ'),
-                        _buildButton('ศ', activeButton == 'ศ'),
-                        _buildButton('ส', activeButton == 'ส'),
-                        _buildButton('อา', activeButton == 'อา'),
-                      ],
-                    ),
+                    _buildButton('จ', activeButton == 'จ'),
+                    _buildButton('อ', activeButton == 'อ'),
+                    _buildButton('พ', activeButton == 'พ'),
+                    _buildButton('พฤ', activeButton == 'พฤ'),
+                    _buildButton('ศ', activeButton == 'ศ'),
+                    _buildButton('ส', activeButton == 'ส'),
+                    _buildButton('อา', activeButton == 'อา'),
                   ],
                 ),
               ),
+              // ส่วนแสดงรายการเรื่อง
               Container(
                 margin: EdgeInsets.only(top: 5),
                 padding: EdgeInsets.all(5),
@@ -111,42 +104,58 @@ class _MyTablePageState extends State<MyTablePage> {
                         spacing: 2,
                         runSpacing: 2,
                         children: storyData.map((data) {
-                          return Container(
-                            width: (MediaQuery.of(context).size.width - 40) / 3,
-                            height: 200,
-                            child: Align(
-                              alignment: Alignment
-                                  .center, // จัด Card ให้อยู่กลางแนวนอน
-                              child: Card(
-                                elevation: 1,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(5.0),
-                                  child: Column(
-                                    children: [
-                                      ClipRRect(
-                                        borderRadius:
-                                            BorderRadius.circular(8.0),
-                                        child: Image.network(
-                                          data['imageUrl'],
-                                          fit: BoxFit.cover,
-                                          height: 140,
-                                          // width: double.infinity,
-                                          width: 100,
-                                        ),
-                                      ),
-                                      SizedBox(height: 8),
-                                      FittedBox(
-                                        fit: BoxFit.scaleDown,
-                                        child: Text(
-                                          data['title'],
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
+                          return GestureDetector(
+                            onTap: () {
+                              print('Clicked on item with ID: ${data['id']}');
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailPage(
+                                    id: data['id'],
+                                    author: data['author'],
+                                    title: data['title'],
+                                    imageUrl: data['imageUrl'],
+                                    description: data['description'],
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              width:
+                                  (MediaQuery.of(context).size.width - 40) / 3,
+                              height: 200,
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: Card(
+                                  elevation: 1,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(5.0),
+                                    child: Column(
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(8.0),
+                                          child: Image.network(
+                                            data['imageUrl'],
+                                            fit: BoxFit.cover,
+                                            height: 140,
+                                            width: 100,
                                           ),
                                         ),
-                                      ),
-                                    ],
+                                        SizedBox(height: 8),
+                                        FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          child: Text(
+                                            data['title'],
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -170,10 +179,7 @@ class _MyTablePageState extends State<MyTablePage> {
       onTap: () {
         setState(() {
           activeButton = text;
-          String dayKey = dayMap[text] ?? '';
-          if (dayKey.isNotEmpty) {
-            fetchStoryData(dayKey); // Fetch data for the selected day
-          }
+          fetchStoryData(text); // เรียกใช้งาน fetchStoryData เมื่อกดปุ่มวัน
         });
       },
       child: Container(

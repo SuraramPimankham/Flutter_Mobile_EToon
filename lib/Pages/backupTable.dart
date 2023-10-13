@@ -99,8 +99,8 @@ class _MyTablePageState extends State<MyTablePage> {
                 ),
               ),
               Container(
-                margin: EdgeInsets.only(top: 10),
-                padding: EdgeInsets.all(10),
+                margin: EdgeInsets.only(top: 5),
+                padding: EdgeInsets.all(5),
                 color: Colors.white,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -108,41 +108,46 @@ class _MyTablePageState extends State<MyTablePage> {
                     Container(
                       constraints: BoxConstraints(minHeight: 600),
                       child: Wrap(
-                        spacing: 10,
-                        runSpacing: 10,
+                        spacing: 2,
+                        runSpacing: 2,
                         children: storyData.map((data) {
                           return Container(
                             width: (MediaQuery.of(context).size.width - 40) / 3,
                             height: 200,
-                            child: Card(
-                              elevation: 1,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                      child: Image.network(
-                                        data['imageUrl'],
-                                        fit: BoxFit.cover,
-                                        height: 140,
-                                        width: double.infinity,
-                                      ),
-                                    ),
-                                    SizedBox(height: 8),
-                                    FittedBox(
-                                      fit: BoxFit
-                                          .scaleDown, // ปรับขนาดของข้อความให้เล็กลงถ้าข้อความยาวเกิน Card
-                                      child: Text(
-                                        data['title'],
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
+                            child: Align(
+                              alignment: Alignment
+                                  .center, // จัด Card ให้อยู่กลางแนวนอน
+                              child: Card(
+                                elevation: 1,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(5.0),
+                                  child: Column(
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius:
+                                            BorderRadius.circular(8.0),
+                                        child: Image.network(
+                                          data['imageUrl'],
+                                          fit: BoxFit.cover,
+                                          height: 140,
+                                          // width: double.infinity,
+                                          width: 100,
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                      SizedBox(height: 8),
+                                      FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: Text(
+                                          data['title'],
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),

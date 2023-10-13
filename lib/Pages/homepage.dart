@@ -145,6 +145,7 @@ class MyHomePage extends StatelessWidget {
                     final author = data['author'];
                     final title = data['title'];
                     final imageUrl = data['imageUrl'];
+                    final description = data['description'];
 
                     // Define the desired size for the image container and card
                     final itemWidth = 150.0;
@@ -160,6 +161,7 @@ class MyHomePage extends StatelessWidget {
                               author: author,
                               title: title,
                               imageUrl: imageUrl,
+                              description: description,
                             ),
                           ),
                         );
@@ -264,6 +266,7 @@ class MyHomePage extends StatelessWidget {
                     final author = data['author'];
                     final title = data['title'];
                     final imageUrl = data['imageUrl'];
+                    final description = data['description'];
 
                     return GestureDetector(
                       onTap: () {
@@ -275,6 +278,7 @@ class MyHomePage extends StatelessWidget {
                               author: author,
                               title: title,
                               imageUrl: imageUrl,
+                              description: description,
                             ),
                           ),
                         );
