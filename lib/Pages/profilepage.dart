@@ -135,8 +135,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                width: 349,
-                height: 520,
+                 width: MediaQuery.of(context).size.width,
+                 height: MediaQuery.of(context).size.height,
                 decoration: BoxDecoration(
                   color: Color(0xFFD539EF),
                 ),
