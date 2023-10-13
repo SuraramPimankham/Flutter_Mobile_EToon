@@ -129,104 +129,106 @@ class _MyProfilePageState extends State<MyProfilePage> {
             ),
             
           ),
-         Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                 width: MediaQuery.of(context).size.width,
-                 height: MediaQuery.of(context).size.height,
-                decoration: BoxDecoration(
-                  color: Color(0xFFD539EF),
-                ),
-                child: GridView(
-                  padding: EdgeInsets.zero,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: 1,
+         SingleChildScrollView(
+           child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: 349,
+                  height: 520,
+                  decoration: BoxDecoration(
+                    color: Color(0xFFD539EF),
                   ),
-                  scrollDirection: Axis.vertical,
-                  children: [
-                    Card(
-                      clipBehavior: Clip.antiAliasWithSaveLayer,
-                      color: Colors.white, // เปลี่ยนสีพื้นหลัง
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Padding(
-                            padding:
-                                EdgeInsetsDirectional.fromSTEB(0, 0, 0, 10),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Icon(
-                                  Icons.settings_outlined,
-                                  color: Colors.black, // เปลี่ยนสีไอคอน
-                                  size: 24,
-                                ),
-                                Text(
-                                  ':',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.black, // เปลี่ยนสีข้อความ
-                                  ),
-                                ),
-                                Text(
-                                  '25 coin',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.black, // เปลี่ยนสีข้อความ
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Divider(
-                            thickness: 1,
-                            color: Colors.black, // เปลี่ยนสีของเส้นแบ่ง
-                          ),
-                          // ยอดเงิน
-                          // แทน FFButtonWidget ด้วย InkWell หรือ ElevatedButton
-                          InkWell(
-                            onTap: () {
-                              print('Button pressed ...');
-                            },
-                            child: Container(
-                              height: 40,
-                              padding: EdgeInsets.symmetric(horizontal: 24),
-                              decoration: BoxDecoration(
-                                color: Colors.blue, // เปลี่ยนสีของพื้นหลัง
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  '25 บาท',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color:
-                                        Colors.white, // เปลี่ยนสีข้อความบนปุ่ม
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                  child: GridView(
+                    padding: EdgeInsets.zero,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                      childAspectRatio: 1,
                     ),
-                  ],
+                    scrollDirection: Axis.vertical,
+                    children: [
+                      Card(
+                        clipBehavior: Clip.antiAliasWithSaveLayer,
+                        color: Colors.white, // เปลี่ยนสีพื้นหลัง
+                        elevation: 4,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Padding(
+                              padding:
+                                  EdgeInsetsDirectional.fromSTEB(0, 0, 0, 10),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Icon(
+                                    Icons.settings_outlined,
+                                    color: Colors.black, // เปลี่ยนสีไอคอน
+                                    size: 24,
+                                  ),
+                                  Text(
+                                    ':',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.black, // เปลี่ยนสีข้อความ
+                                    ),
+                                  ),
+                                  Text(
+                                    '25 coin',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.black, // เปลี่ยนสีข้อความ
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Divider(
+                              thickness: 1,
+                              color: Colors.black, // เปลี่ยนสีของเส้นแบ่ง
+                            ),
+                            // ยอดเงิน
+                            // แทน FFButtonWidget ด้วย InkWell หรือ ElevatedButton
+                            InkWell(
+                              onTap: () {
+                                print('Button pressed ...');
+                              },
+                              child: Container(
+                                height: 40,
+                                padding: EdgeInsets.symmetric(horizontal: 24),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue, // เปลี่ยนสีของพื้นหลัง
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    '25 บาท',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color:
+                                          Colors.white, // เปลี่ยนสีข้อความบนปุ่ม
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          )
+              ],
+            ),
+         )
 
         ],
       ),
