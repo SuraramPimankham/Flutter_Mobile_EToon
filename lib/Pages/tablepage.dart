@@ -190,7 +190,7 @@ class _MyTablePageState extends State<MyTablePage> {
         width: 45,
         height: 45,
         decoration: BoxDecoration(
-          color: isActive ? Colors.blue : Colors.lightBlue,
+          color: isActive ? Colors.pink : const Color.fromARGB(255, 237, 123, 161),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Center(

@@ -1,9 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:apptoon/Pages/detailpage.dart';
 
 class MyHomePage extends StatelessWidget {
+  final ScrollController _scrollController = ScrollController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -12,25 +13,22 @@ class MyHomePage extends StatelessWidget {
         title: Text('Homepage'),
       ),
       body: SingleChildScrollView(
+        controller: _scrollController,
         child: Column(
           children: [
-            _buildCategoryButtons(),
-            _buildRecommendedStories(),
-            _buildAction(),
-            // _buildRomantic(),
-            // _buildComedy(),
-            // _buildFantasy(),
-            // _buildHorror(),
+            _buildCategoryButtons(context),
+            _buildRecommendedStories(context),
+            _buildAction(context),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildCategoryButtons() {
+  Widget _buildCategoryButtons(BuildContext context) {
     return Container(
       width: 400,
-      color: Colors.white,
+      color: Color.fromARGB(255, 241, 129, 166),
       margin: EdgeInsets.all(10),
       padding: EdgeInsets.all(20),
       child: Column(
@@ -41,7 +39,7 @@ class MyHomePage extends StatelessWidget {
                 'หมวดหมู่',
                 style: TextStyle(
                   fontSize: 18,
-                  decoration: TextDecoration.underline,
+                  color: Colors.white,
                 ),
               ),
             ],
@@ -52,7 +50,12 @@ class MyHomePage extends StatelessWidget {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    print('ต่อสู้');
+                    print('แอ็กชัน');
+                    _scrollController.animateTo(
+                      _scrollController.position.maxScrollExtent,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut,
+                    );
                   },
                   child: Text('แอ็กชัน'),
                 ),
@@ -88,8 +91,7 @@ class MyHomePage extends StatelessWidget {
     );
   }
 
-  // แนะนำ
-  Widget _buildRecommendedStories() {
+  Widget _buildRecommendedStories(BuildContext context) {
     return Container(
       width: 400,
       height: 338,
@@ -133,7 +135,6 @@ class MyHomePage extends StatelessWidget {
                   );
                 }
 
-                // Return the ListView.builder here
                 return ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: documents.length,
@@ -147,7 +148,6 @@ class MyHomePage extends StatelessWidget {
                     final imageUrl = data['imageUrl'];
                     final description = data['description'];
 
-                    // Define the desired size for the image container and card
                     final itemWidth = 150.0;
                     final itemHeight = 250.0;
 
@@ -169,16 +169,13 @@ class MyHomePage extends StatelessWidget {
                       child: Container(
                         width: itemWidth,
                         height: itemHeight,
-                        // margin: EdgeInsets.all(10),
                         child: Card(
                           elevation: 1,
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(
-                                8.0), // ปรับขนาดมุมของการ์ด
+                            borderRadius: BorderRadius.circular(8.0),
                             child: Image.network(
                               imageUrl,
-                              fit: BoxFit
-                                  .cover, // ให้รูปภาพปรับขนาดให้พอดีกับการ์ด
+                              fit: BoxFit.cover,
                             ),
                           ),
                         ),
@@ -194,8 +191,7 @@ class MyHomePage extends StatelessWidget {
     );
   }
 
-  // แอ็กชัน
-  Widget _buildAction() {
+  Widget _buildAction(BuildContext context) {
     return Container(
       width: 400,
       height: 338,
@@ -212,19 +208,6 @@ class MyHomePage extends StatelessWidget {
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18,
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  // ตรงนี้คุณสามารถระบุการดำเนินการเมื่อปุ่ม "More" ถูกคลิก
-                  print('More button clicked');
-                },
-                child: Text(
-                  'More',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                  ),
                 ),
               ),
             ],
@@ -254,7 +237,6 @@ class MyHomePage extends StatelessWidget {
                   );
                 }
 
-                // Return the ListView.builder here
                 return ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: documents.length,
@@ -270,11 +252,6 @@ class MyHomePage extends StatelessWidget {
 
                     return GestureDetector(
                       onTap: () {
-                        print('ID: ${data['id']}');
-                        print('Author: ${data['author']}');
-                        print('Title: ${data['title']}');
-                        print('ImageUrl: ${data['imageUrl']}');
-                        print('Description: ${data['description']}');
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -321,14 +298,11 @@ class MyHomePage extends StatelessWidget {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Container(
-                                        width: double
-                                            .infinity, // ทำให้ Text ขยายตามขนาดของ Card
+                                        width: double.infinity,
                                         child: Text(
                                           '$title',
-                                          overflow: TextOverflow
-                                              .ellipsis, // ถ้ายาวเกินจะทำการตัดข้อความ
-                                          maxLines:
-                                              1, // จำกัดให้แสดงเพียง 1 บรรทัด
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 14,
@@ -366,4 +340,10 @@ class MyHomePage extends StatelessWidget {
       ),
     );
   }
+
+  // @override
+  // void dispose() {
+  //   _scrollController.dispose();
+  //   super.dispose();
+  // }
 }

@@ -50,31 +50,34 @@ class _MyProfilePageState extends State<MyProfilePage> {
       ),
       body: Column(
           children: <Widget>[
-            Container(
-              width: MediaQuery.of(context).size.width,
-              height: 100.0,
-              color: Colors.blue,
-              child: Card(
-                clipBehavior: Clip.antiAliasWithSaveLayer,
-                color: Colors.pink,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Text('users :',
-                        style: TextStyle(fontSize: 16, color: Colors.white)),
-                    Icon(
-                      Icons.monetization_on_outlined,
-                      color: Colors.white,
-                      size: 24,
-                    ),
-                    Text(
-                      'coins :',
-                      style: TextStyle(fontSize: 16, color: Colors.white),
-                    ),
-                  ],
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                height: 100.0,
+                color: Colors.black,
+                child: Card(
+                  clipBehavior: Clip.antiAliasWithSaveLayer,
+                   color: Color.fromARGB(255, 241, 129, 166),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Text('users :',
+                          style: TextStyle(fontSize: 16, color: Colors.white)),
+                      Icon(
+                        Icons.monetization_on_outlined,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                      Text(
+                        'coins :',
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -82,7 +85,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Container(
-                  color: Colors.white,
+                   color: Color.fromARGB(255, 241, 129, 166),
                   
                   child: GridView(
                      padding: EdgeInsets.zero,
