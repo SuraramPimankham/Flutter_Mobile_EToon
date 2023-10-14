@@ -49,179 +49,120 @@ class _MyProfilePageState extends State<MyProfilePage> {
         ),
       ),
       body: Column(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          Padding(
-            padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Card(
-                  clipBehavior: Clip.antiAliasWithSaveLayer,
-                  color: const Color.fromARGB(255, 233, 236, 237), // เปลี่ยนสี
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            Container(
+              width: MediaQuery.of(context).size.width,
+              height: 100.0,
+              color: Colors.blue,
+              child: Card(
+                clipBehavior: Clip.antiAliasWithSaveLayer,
+                color: Colors.pink,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Text('users :',
+                        style: TextStyle(fontSize: 16, color: Colors.white)),
+                    Icon(
+                      Icons.monetization_on_outlined,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                    Text(
+                      'coins :',
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  color: Colors.white,
+                  
+                  child: GridView(
+                     padding: EdgeInsets.zero,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                    childAspectRatio: 1,
+                    ),
+                    scrollDirection: Axis.vertical,
                     children: [
                       Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(0, 5, 0, 5),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Card(
-                              clipBehavior: Clip.antiAliasWithSaveLayer,
-                              color: Colors.white, // เปลี่ยนสี
-                              elevation: 4,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                'User :',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.black, // เปลี่ยนสี
+                        padding: const EdgeInsets.all(10.0),
+                        child: Card(
+                          clipBehavior: Clip.antiAliasWithSaveLayer,
+                          color: Colors.blue,
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Padding(
+                                padding:
+                                    EdgeInsetsDirectional.fromSTEB(0, 5, 0, 5),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.max,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.settings_outlined,
+                                      color: Colors.white,
+                                      size: 24,
+                                    ),
+                                    Text(
+                                      'Hello World',
+                                      style: TextStyle(fontSize: 16 ,
+                                          color: Colors.white,
+                                        )
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Padding(
-                            padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 5),
-                            child: Card(
-                              clipBehavior: Clip.antiAliasWithSaveLayer,
-                              color: Colors.white, // เปลี่ยนสี
-                              elevation: 4,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  Icon(
-                                    Icons.monetization_on_outlined,
-                                    color: Colors.black, // เปลี่ยนสี
-                                    size: 24,
-                                  ),
-                                  Text(
-                                    ' :',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.black, // เปลี่ยนสี
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                  Row(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Container(
-                            width: 397,
-                            height: 410,
-                            decoration: BoxDecoration(
-                              color: Colors.amber,
-                            ),
-                            child: GridView(
-                              padding: EdgeInsets.zero,
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3,
-                                crossAxisSpacing: 10,
-                                mainAxisSpacing: 10,
-                                childAspectRatio: 1,
-                              ),
-                              scrollDirection: Axis.vertical,
-                              children: [
-                                Card(
-                                  clipBehavior: Clip.antiAliasWithSaveLayer,
-                                  color: Colors.pink,
+                              ElevatedButton(
+                                onPressed: () {
+                                  print('Button presse dmitr ...');
+                                },
+                                 style: ElevatedButton.styleFrom(
+                                  primary: Colors
+                                      .pink, 
+                                  elevation: 3,
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 24, vertical: 0),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: Padding(
-                                    padding: EdgeInsetsDirectional.fromSTEB(
-                                        0, 10, 0, 0),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      children: [
-                                        Icon(
-                                          Icons.monetization_on_outlined,
-                                          color: Colors.white,
-                                          size: 24,
-                                        ),
-                                        Padding(
-                                          padding:
-                                              EdgeInsetsDirectional.fromSTEB(
-                                                  0, 5, 0, 10),
-                                          child: Text(
-                                            '25 coins',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                        ConstrainedBox(
-                                          constraints: BoxConstraints(
-                                            maxHeight:
-                                                40, // ควบคุมความสูงสูงสุดของปุ่ม
-                                          ),
-                                          child: ElevatedButton(
-                                            onPressed: () {
-                                              // กำหนดการกระทำเมื่อปุ่มถูกกด
-                                              print('ปุ่มถูกกด ...');
-                                            },
-                                            child: Text(
-                                              '25 บาท ',
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                            style: ElevatedButton.styleFrom(
-                                              primary: Colors
-                                                  .blue, // สีพื้นหลังของปุ่ม
-                                              elevation: 3, // ความโค้งของปุ่ม
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(
-                                                        8), // รัศมีขอบของปุ่ม
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
                                 ),
+                                child: Text(
+                                  'Button',
+                                  style: TextStyle(fontSize: 16, color: Colors.white)
+                                ),
+                              )
 
-                              ],
-                            ),
+                            ],
                           ),
-                        ],
-                      )
-
-
-
+                        ),
+                      ),
+                      
                     ],
-                  ),
-                )
-              ],
-            ),
-          ),
-        ],
-      ),
+                    ),
+                  
+                  
+                ),
+              ),
+            )
+          ],
+        )
+
     );
   }
 }
