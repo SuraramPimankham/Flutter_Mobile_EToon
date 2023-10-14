@@ -122,115 +122,104 @@ class _MyProfilePageState extends State<MyProfilePage> {
                           ),
                         ],
                       ),
+                  Row(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Container(
+                            width: 397,
+                            height: 410,
+                            decoration: BoxDecoration(
+                              color: Colors.amber,
+                            ),
+                            child: GridView(
+                              padding: EdgeInsets.zero,
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 3,
+                                crossAxisSpacing: 10,
+                                mainAxisSpacing: 10,
+                                childAspectRatio: 1,
+                              ),
+                              scrollDirection: Axis.vertical,
+                              children: [
+                                Card(
+                                  clipBehavior: Clip.antiAliasWithSaveLayer,
+                                  color: Colors.pink,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        0, 10, 0, 0),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.max,
+                                      children: [
+                                        Icon(
+                                          Icons.monetization_on_outlined,
+                                          color: Colors.white,
+                                          size: 24,
+                                        ),
+                                        Padding(
+                                          padding:
+                                              EdgeInsetsDirectional.fromSTEB(
+                                                  0, 5, 0, 10),
+                                          child: Text(
+                                            '25 coins',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                        ConstrainedBox(
+                                          constraints: BoxConstraints(
+                                            maxHeight:
+                                                40, // ควบคุมความสูงสูงสุดของปุ่ม
+                                          ),
+                                          child: ElevatedButton(
+                                            onPressed: () {
+                                              // กำหนดการกระทำเมื่อปุ่มถูกกด
+                                              print('ปุ่มถูกกด ...');
+                                            },
+                                            child: Text(
+                                              '25 บาท ',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            style: ElevatedButton.styleFrom(
+                                              primary: Colors
+                                                  .blue, // สีพื้นหลังของปุ่ม
+                                              elevation: 3, // ความโค้งของปุ่ม
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        8), // รัศมีขอบของปุ่ม
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+
+                              ],
+                            ),
+                          ),
+                        ],
+                      )
+
+
+
                     ],
                   ),
                 )
               ],
             ),
-            
           ),
-         SingleChildScrollView(
-           child: Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  width: 349,
-                  height: 520,
-                  decoration: BoxDecoration(
-                    color: Color(0xFFD539EF),
-                  ),
-                  child: GridView(
-                    padding: EdgeInsets.zero,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                      childAspectRatio: 1,
-                    ),
-                    scrollDirection: Axis.vertical,
-                    children: [
-                      Card(
-                        clipBehavior: Clip.antiAliasWithSaveLayer,
-                        color: Colors.white, // เปลี่ยนสีพื้นหลัง
-                        elevation: 4,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Padding(
-                              padding:
-                                  EdgeInsetsDirectional.fromSTEB(0, 0, 0, 10),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Icon(
-                                    Icons.settings_outlined,
-                                    color: Colors.black, // เปลี่ยนสีไอคอน
-                                    size: 24,
-                                  ),
-                                  Text(
-                                    ':',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.black, // เปลี่ยนสีข้อความ
-                                    ),
-                                  ),
-                                  Text(
-                                    '25 coin',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.black, // เปลี่ยนสีข้อความ
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Divider(
-                              thickness: 1,
-                              color: Colors.black, // เปลี่ยนสีของเส้นแบ่ง
-                            ),
-                            // ยอดเงิน
-                            // แทน FFButtonWidget ด้วย InkWell หรือ ElevatedButton
-                            InkWell(
-                              onTap: () {
-                                print('Button pressed ...');
-                              },
-                              child: Container(
-                                height: 40,
-                                padding: EdgeInsets.symmetric(horizontal: 24),
-                                decoration: BoxDecoration(
-                                  color: Colors.blue, // เปลี่ยนสีของพื้นหลัง
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    '25 บาท',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color:
-                                          Colors.white, // เปลี่ยนสีข้อความบนปุ่ม
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      
-                    ],
-                  ),
-                ),
-              ],
-            ),
-         )
-
         ],
       ),
     );

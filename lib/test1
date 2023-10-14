@@ -9,3 +9,18 @@ GridView(
   scrollDirection: Axis.vertical,
   children: [],
 )
+
+
+
+   Icon(
+                                     Icons.monetization_on_outlined,
+                                    color: Colors.black,
+                                    size: 24,
+                                  ),
+
+
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'Readex Pro',
+                                      color: Colors.white,)
