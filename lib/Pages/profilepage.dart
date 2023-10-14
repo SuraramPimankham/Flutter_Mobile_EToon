@@ -114,13 +114,14 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                   mainAxisSize: MainAxisSize.max,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(
-                                      Icons.settings_outlined,
+                                      Icon(
+                                      Icons.monetization_on_outlined,
                                       color: Colors.white,
                                       size: 24,
                                     ),
+
                                     Text(
-                                      'Hello World',
+                                       ' : 25 coins',
                                       style: TextStyle(fontSize: 16 ,
                                           color: Colors.white,
                                         )
@@ -143,7 +144,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                   ),
                                 ),
                                 child: Text(
-                                  'Button',
+                                  '25 บาท',
                                   style: TextStyle(fontSize: 16, color: Colors.white)
                                 ),
                               )
