@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:apptoon/Pages/episode.dart';
 
 class DetailPage extends StatefulWidget {
   final String id;
@@ -22,6 +23,8 @@ class DetailPage extends StatefulWidget {
 
 class _DetailPageState extends State<DetailPage> {
   late List<String> episodes = [];
+  late List<String> episodeIds = [];
+  String selectedEpisodeId = '';
 
   @override
   void initState() {
@@ -39,21 +42,25 @@ class _DetailPageState extends State<DetailPage> {
       if (episodesSnapshot.docs.isNotEmpty) {
         setState(() {
           episodes.clear();
+          episodeIds.clear();
         });
 
-        // Add episode values to the list
         episodesSnapshot.docs.forEach((doc) {
-          String episode = doc['ep']; // Assuming the field name is 'ep'
+          String episode_id = doc.id;
+          String episode = doc['ep'];
           episodes.add('EP $episode');
+          episodeIds.add(episode_id);
         });
 
-        // Sort episodes from high to low
         episodes.sort((a, b) {
-          int aEpisodeNumber =
-              int.parse(a.split(' ')[1]); // Extract episode number
+          int aEpisodeNumber = int.parse(a.split(' ')[1]);
           int bEpisodeNumber = int.parse(b.split(' ')[1]);
-          return bEpisodeNumber
-              .compareTo(aEpisodeNumber); // Sort from high to low
+          return bEpisodeNumber.compareTo(aEpisodeNumber);
+        });
+        episodeIds.sort((a, b) {
+          int aEpisodeNumber = int.tryParse(a.split('EP ')[1]) ?? 0;
+          int bEpisodeNumber = int.tryParse(b.split('EP ')[1]) ?? 0;
+          return bEpisodeNumber.compareTo(aEpisodeNumber);
         });
       }
     } catch (e) {
@@ -169,32 +176,54 @@ class _DetailPageState extends State<DetailPage> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Column(
+                  mainAxisSize: MainAxisSize.max,
                   children: episodes
-                      .map((episode) => Card(
+                      .asMap()
+                      .entries
+                      .map((entry) => Card(
                             clipBehavior: Clip.antiAliasWithSaveLayer,
                             color: Colors.grey[200],
                             elevation: 4,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Row(
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.all(5),
-                                  child: Text(
-                                    '$episode',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
+                            child: InkWell(
+                              onTap: () {
+                                String episode_id = episodeIds[entry.key];
+                                setState(() {
+                                  selectedEpisodeId = episode_id;
+                                });
+
+                                print('Toon ID: ${widget.id}');
+                                print('Episode ID: $episode_id');
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => EpisodePage(
+                                      toonId: widget.id,
+                                      episodeId: episode_id,
                                     ),
                                   ),
-                                ),
-                              ],
+                                );
+                              },
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.all(5),
+                                    child: Text(
+                                      '${episodes[entry.key]} - ${episodeIds[entry.key]}',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ))
                       .toList(),
                 ),
               ),
-            ),
+            )
           ],
         ),
       ),
