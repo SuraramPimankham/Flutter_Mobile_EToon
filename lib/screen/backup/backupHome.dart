@@ -1,6 +1,6 @@
 import 'package:apptoon/Pages/favoritepage.dart';
 import 'package:apptoon/Pages/homepage.dart';
-import 'package:apptoon/Pages/profile.dart';
+import 'package:apptoon/profile.dart';
 import 'package:apptoon/Pages/profilepage.dart';
 import 'package:apptoon/Pages/tablepage.dart';
 import 'package:flutter/material.dart';
