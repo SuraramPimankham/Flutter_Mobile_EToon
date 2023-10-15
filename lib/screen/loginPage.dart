@@ -80,10 +80,19 @@ class LoginPage extends StatelessWidget {
           icon: FontAwesomeIcons.google,
           label: 'Google',
           callback: () async {
-            debugPrint('start google sign in');
-            await Future.delayed(loginTime);
-            debugPrint('stop google sign in');
-            return null;
+            // สร้าง GoogleAuthProvider instance
+            var googleProvider = GoogleAuthProvider();
+
+            try {
+              // ล็อกอินผ่านบัญชี Google
+              UserCredential userCredential =
+                  await FirebaseAuth.instance.signInWithPopup(googleProvider);
+              return null;
+            } catch (e) {
+              // หากเกิดข้อผิดพลาดในการล็อกอิน
+              print('Google Sign In Error: $e');
+              return 'เกิดข้อผิดพลาดในการล็อกอิน';
+            }
           },
         ),
         LoginProvider(
