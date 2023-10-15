@@ -43,11 +43,6 @@ class LoginPage extends StatelessWidget {
         email: email ?? '',
         password: password ?? '',
       );
-
-      // เมื่อล็อกอินสำเร็จ, บันทึกข้อมูลการล็อกอินลงใน SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      prefs.setBool('isLoggedIn', true);
-
       return null;
     } on FirebaseAuthException catch (e) {
       return e.message;
@@ -69,7 +64,6 @@ class LoginPage extends StatelessWidget {
       title: 'E-Toon',
       logo: AssetImage('images/logo1.png'),
       onLogin: (data) async {
-        print('User email: ${data.name}, password: ${data.password}');
         return await signIn(data.name, data.password);
       },
       onSignup: (data) async {

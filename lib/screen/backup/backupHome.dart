@@ -11,7 +11,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  bool isLoggedIn = false;
 
   HomePage({Key? key}) : super(key: key);
 
@@ -22,26 +21,6 @@ class HomePage extends StatefulWidget {
 //HomePageState
 class _HomePageState extends State<HomePage> {
   int _selectedTab = 0;
-
-  @override
-  void checkLoginStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    final isLogged = prefs.getBool('isLoggedIn') ?? false;
-    setState(() {
-      widget.isLoggedIn = isLogged;
-    });
-  }
-
-  void initState() {
-    super.initState();
-    // ตรวจสอบสถานะการล็อกอินและกำหนดค่าให้กับ isLoggedIn
-    FirebaseAuth auth = FirebaseAuth.instance;
-    auth.authStateChanges().listen((user) {
-      setState(() {
-        widget.isLoggedIn = user != null;
-      });
-    });
-  }
 
   // เมธอดสำหรับออกจากระบบ
   void signOut(BuildContext context) async {
@@ -61,9 +40,8 @@ class _HomePageState extends State<HomePage> {
           MyHomePage(),
           MyTablePage(),
           MyFavoritePage(),
-          widget.isLoggedIn
-              ? MyProfilePage(email: widget._auth.currentUser?.email)
-              : MyProfile(),
+          // MyProfilePage()
+          MyProfile()
         ],
       ),
       // CurvedNavigationBar
