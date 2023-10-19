@@ -1,4 +1,4 @@
-import 'package:apptoon/screen/backupLoginPage.dart';
+import 'package:apptoon/screen/login.dart';
 import 'package:flutter/material.dart';
 
 class MyProfile extends StatelessWidget {
@@ -40,7 +40,7 @@ class MyProfile extends StatelessWidget {
               ),
               SizedBox(height: 16), // เพิ่มระยะห่างระหว่างข้อความและปุ่ม
 
-             ElevatedButton(
+              ElevatedButton(
                 onPressed: () {
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
@@ -65,7 +65,6 @@ class MyProfile extends StatelessWidget {
                   ),
                 ),
               )
-
             ],
           ),
         ),

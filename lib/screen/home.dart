@@ -5,9 +5,9 @@ import 'package:apptoon/Pages/profilepage.dart';
 import 'package:apptoon/Pages/tablepage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:apptoon/screen/loginPage.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:apptoon/screen/login.dart';
 
 class HomePage extends StatefulWidget {
   final FirebaseAuth _auth = FirebaseAuth.instance;

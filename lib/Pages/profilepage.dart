@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:apptoon/screen/loginPage.dart';
+import 'package:apptoon/screen/login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:apptoon/screen/home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

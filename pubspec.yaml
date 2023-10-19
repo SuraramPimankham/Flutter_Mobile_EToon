@@ -9,7 +9,7 @@ environment:
 
 dependencies:
   cached_network_image: ^3.3.0
-  card_swiper: 3.0.1
+  card_swiper: ^3.0.1
   carousel_images: ^1.1.2
   carousel_slider: ^4.2.1
   cloud_firestore: ^4.9.2

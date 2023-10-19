@@ -1,38 +1,49 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
+import 'dart:ui';
+import 'package:apptoon/screen/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:apptoon/screen/home.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LoginPage extends StatelessWidget {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final Duration loginTime = Duration(milliseconds: 2250);
+
+  Duration get loginTime => Duration(milliseconds: 2250);
 
   Future<String?> signUp(String? email, String? password) async {
     try {
-      await _auth.createUserWithEmailAndPassword(
+      await _auth
+          .createUserWithEmailAndPassword(
         email: email ?? '',
         password: password ?? '',
-      );
+      )
+          .then((userCredential) async {
+        // บันทึกข้อมูลลง Firestore
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userCredential.user?.uid)
+            .set({
+          'email': email,
+          'password': password,
+          'coin': 0,
+          'username': email,
+          'favorite': [],
+          'score_action': 0,
+          'score_comedy': 0,
+          'score_fantasy': 0,
+          'score_romance': 0,
+          'score_horror': 0,
+          // เพิ่มข้อมูลอื่น ๆ ที่คุณต้องการบันทึกลง Firestore
+        });
 
-      await FirebaseFirestore.instance.collection('users').add({
-        'username': email ?? '',
-        'email': email,
-        'password': password,
-        'coin': 0,
-        'favorite': null,
+        // สำเร็จ: ไม่มีข้อผิดพลาด
+        return null;
       });
-
-      return null; // Successful sign-up
     } on FirebaseAuthException catch (e) {
       String errorMessage = 'An error occurred';
-      if (e.code == 'weak-password') {
-        errorMessage = 'The password provided is too weak.';
-      } else if (e.code == 'email-already-in-use') {
-        errorMessage = 'The account already exists for that email.';
-      }
+      // จัดการข้อผิดพลาดจาก Firebase Authentication ได้ที่นี่
       return errorMessage;
     }
   }
@@ -43,13 +54,9 @@ class LoginPage extends StatelessWidget {
         email: email ?? '',
         password: password ?? '',
       );
-
-      // เมื่อล็อกอินสำเร็จ, บันทึกข้อมูลการล็อกอินลงใน SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      prefs.setBool('isLoggedIn', true);
-
       return null;
     } on FirebaseAuthException catch (e) {
+      print('Error: $e');
       return e.message;
     }
   }
@@ -69,7 +76,6 @@ class LoginPage extends StatelessWidget {
       title: 'E-Toon',
       logo: AssetImage('images/logo1.png'),
       onLogin: (data) async {
-        print('User email: ${data.name}, password: ${data.password}');
         return await signIn(data.name, data.password);
       },
       onSignup: (data) async {
@@ -80,19 +86,10 @@ class LoginPage extends StatelessWidget {
           icon: FontAwesomeIcons.google,
           label: 'Google',
           callback: () async {
-            // สร้าง GoogleAuthProvider instance
-            var googleProvider = GoogleAuthProvider();
-
-            try {
-              // ล็อกอินผ่านบัญชี Google
-              UserCredential userCredential =
-                  await FirebaseAuth.instance.signInWithPopup(googleProvider);
-              return null;
-            } catch (e) {
-              // หากเกิดข้อผิดพลาดในการล็อกอิน
-              print('Google Sign In Error: $e');
-              return 'เกิดข้อผิดพลาดในการล็อกอิน';
-            }
+            debugPrint('start google sign in');
+            await Future.delayed(loginTime);
+            debugPrint('stop google sign in');
+            return null;
           },
         ),
         LoginProvider(
