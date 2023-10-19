@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:apptoon/Pages/episode.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:apptoon/profile.dart'; // เพิ่ม import
 
 class DetailPage extends StatefulWidget {
   final String id;
@@ -21,11 +19,6 @@ class DetailPage extends StatefulWidget {
 
   @override
   _DetailPageState createState() => _DetailPageState();
-
-  Future<bool> isUserLoggedIn() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('isLoggedIn') ?? false;
-  }
 }
 
 class _DetailPageState extends State<DetailPage> {
@@ -37,34 +30,6 @@ class _DetailPageState extends State<DetailPage> {
   void initState() {
     super.initState();
     fetchEpisodes();
-  }
-
-  Future<void> checkUserLoginStatus(bool isLocked, String episodeId) async {
-    bool isLoggedIn = await widget.isUserLoggedIn();
-
-    if (isLoggedIn) {
-      // มีการเข้าสู่ระบบ ให้ไปยังหน้า EpisodePage
-      goToEpisodePage(episodeId);
-    } else {
-      // ไม่มีการเข้าสู่ระบบ ให้ไปยังหน้า MyProfile
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => MyProfile(),
-        ),
-      );
-    }
-  }
-
-  void goToEpisodePage(String episodeId) {
-    // นำทางไปยังหน้า EpisodePage โดยใช้ episodeId
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => EpisodePage(
-          toonId: widget.id,
-          episodeId: episodeId,
-        ),
-      ),
-    );
   }
 
   Future<void> fetchEpisodes() async {
@@ -212,57 +177,50 @@ class _DetailPageState extends State<DetailPage> {
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
-                  children: episodes.asMap().entries.map((entry) {
-                    int episodeNumber =
-                        int.tryParse(episodes[entry.key].split(' ')[1]) ?? 0;
+                  children: episodes
+                      .asMap()
+                      .entries
+                      .map((entry) => Card(
+                            clipBehavior: Clip.antiAliasWithSaveLayer,
+                            color: Colors.grey[200],
+                            elevation: 4,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: InkWell(
+                              onTap: () {
+                                String episode_id = episodeIds[entry.key];
+                                setState(() {
+                                  selectedEpisodeId = episode_id;
+                                });
 
-                    // เช็คว่า EP มีการติด Icon Lock หรือไม่
-                    bool isLocked = episodeNumber >= 4;
-
-                    return Card(
-                      clipBehavior: Clip.antiAliasWithSaveLayer,
-                      color: Colors.grey[200],
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: InkWell(
-                        onTap: () {
-                          String episode_id = episodeIds[entry.key];
-                          setState(() {
-                            selectedEpisodeId = episode_id;
-                          });
-
-                          if (isLocked) {
-                            // เช็คว่ามีการเข้าสู่ระบบหรือไม่
-                            checkUserLoginStatus(isLocked, episode_id);
-                          } else {
-                            // EP ไม่ติด Icon Lock ให้ไปยังหน้า EpisodePage โดยตรง
-                            goToEpisodePage(episode_id);
-                          }
-                        },
-                        child: Row(
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.all(5),
+                                print('Toon ID: ${widget.id}');
+                                print('Episode ID: $episode_id');
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => EpisodePage(
+                                      toonId: widget.id,
+                                      episodeId: episode_id,
+                                    ),
+                                  ),
+                                );
+                              },
                               child: Row(
                                 children: [
-                                  if (isLocked)
-                                    Icon(Icons.lock), // เพิ่ม icon ที่นี่
-                                  Text(
-                                    '${episodes[entry.key]} - ${episodeIds[entry.key]}',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
+                                  Padding(
+                                    padding: EdgeInsets.all(5),
+                                    child: Text(
+                                      '${episodes[entry.key]} - ${episodeIds[entry.key]}',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }).toList(),
+                          ))
+                      .toList(),
                 ),
               ),
             )
