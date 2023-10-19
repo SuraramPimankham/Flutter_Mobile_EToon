@@ -16,7 +16,7 @@ class _MyFavoritePageState extends State<MyFavoritePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Text(
-            'Welcome to My App! mitr Coins',
+            'Favorite Pages',
             style: TextStyle(fontSize: 24),
           ),
         ],
