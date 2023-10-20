@@ -66,7 +66,7 @@ class _MyTablePageState extends State<MyTablePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Table'),
+        title: Text('กำหนดการการ์ตูน'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -190,7 +190,8 @@ class _MyTablePageState extends State<MyTablePage> {
         width: 45,
         height: 45,
         decoration: BoxDecoration(
-          color: isActive ? Colors.pink : const Color.fromARGB(255, 237, 123, 161),
+          color:
+              isActive ? Colors.pink : const Color.fromARGB(255, 237, 123, 161),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Center(

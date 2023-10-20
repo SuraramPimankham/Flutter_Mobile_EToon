@@ -340,10 +340,4 @@ class MyHomePage extends StatelessWidget {
       ),
     );
   }
-
-  // @override
-  // void dispose() {
-  //   _scrollController.dispose();
-  //   super.dispose();
-  // }
 }
