@@ -163,24 +163,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                   ),
                                   ElevatedButton(
                                     onPressed: () {
-                                      // เพิ่มจำนวนะเหรียญ
-                                      int coinsToAdd =
-                                          25; //หรือจำนวนที่ต้องการเพิ่ม
-                                      int newCoins = user_coins + coinsToAdd;
-
-                                      // อัปเดตค่าเหรียญใน Firebase firestore
-                                      FirebaseFirestore.instance
-                                          .collection('users')
-                                          .doc('coin')
-                                          .update({'coin': newCoins}).then((_) {
-                                        setState(() {
-                                          user_coins =
-                                              newCoins; // updatecoin บนหน้าจอ
-                                        });
-                                        print('Coins added successfully');
-                                      }).catchError((error){
-                                        print('Error adding coins: $error');
-                                      });
+                                      print('Button pressed...');
                                     },
                                     style: ElevatedButton.styleFrom(
                                       primary: Colors.pink,
