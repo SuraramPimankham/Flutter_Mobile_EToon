@@ -162,26 +162,44 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                     ),
                                   ),
                                   ElevatedButton(
-                                    onPressed: () {
-                                      // เพิ่มจำนวนะเหรียญ
-                                      int coinsToAdd =
-                                          25; //หรือจำนวนที่ต้องการเพิ่ม
-                                      int newCoins = user_coins + coinsToAdd;
+                                     onPressed: () {
+                                      int coinsToAdd = 25;
 
-                                      // อัปเดตค่าเหรียญใน Firebase firestore
+                                      // ค้นหาเอกสารที่มีฟิลด์ 'email' เท่ากับ 'email' ที่ส่งมา
                                       FirebaseFirestore.instance
                                           .collection('users')
-                                          .doc('coin')
-                                          .update({'coin': newCoins}).then((_) {
-                                        setState(() {
-                                          user_coins =
-                                              newCoins; // updatecoin บนหน้าจอ
+                                          .where('email', isEqualTo: email)
+                                          .get()
+                                          .then((QuerySnapshot? querySnapshot) {
+                                        // ใส่ ? เพื่อระบุว่า querySnapshot อาจเป็น null
+                                        querySnapshot?.docs.forEach(
+                                            (QueryDocumentSnapshot? document) {
+                                          // ใส่ ? เพื่อระบุว่า document อาจเป็น null
+                                          if (document != null) {
+                                            int currentCoins = document[
+                                                'coin']; // ใส่ ! เพื่อระบุว่า document ไม่เป็น null
+                                            int newCoins =
+                                                currentCoins + coinsToAdd;
+
+                                            // อัปเดตค่าเหรียญใน Firebase Firestore
+                                            String documentId = document.id;
+                                            FirebaseFirestore.instance
+                                                .collection('users')
+                                                .doc(documentId)
+                                                .update({
+                                              'coin': newCoins
+                                            }).then((_) {
+                                              print('Coins added successfully');
+                                            }).catchError((error) {
+                                              print(
+                                                  'Error adding coins: $error');
+                                            });
+                                          }
                                         });
-                                        print('Coins added successfully');
-                                      }).catchError((error){
-                                        print('Error adding coins: $error');
                                       });
                                     },
+
+
                                     style: ElevatedButton.styleFrom(
                                       primary: Colors.pink,
                                       elevation: 3,
