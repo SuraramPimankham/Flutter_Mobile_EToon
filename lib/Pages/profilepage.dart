@@ -23,6 +23,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
   void initState() {
     super.initState();
     email = widget.email;
+    
   }
 
   @override

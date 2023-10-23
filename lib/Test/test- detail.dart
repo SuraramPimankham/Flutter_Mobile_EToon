@@ -234,30 +234,59 @@ class _DetailPageState extends State<DetailPage> {
                           });
 
                           if (isLocked) {
-                            // เช็คว่ามีการเข้าสู่ระบบหรือไม่
-                            checkUserLoginStatus(isLocked, episode_id);
+                            // popup การตัดสินใจ
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text('EP ที่ติด Icon Lock'),
+                                  content: Text("ต้องการซื้อ EP  นี้หรือไม่?"),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      child: Text('ยกเลิก'),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                    TextButton(
+                                      child: Text('ซื้อ'),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
                           } else {
                             // EP ไม่ติด Icon Lock ให้ไปยังหน้า EpisodePage โดยตรง
                             goToEpisodePage(episode_id);
                           }
                         },
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Padding(
-                              padding: EdgeInsets.all(5),
-                              child: Row(
-                                children: [
-                                  if (isLocked)
-                                    Icon(Icons.lock), // เพิ่ม icon ที่นี่
-                                  Text(
-                                    '${episodes[entry.key]} - ${episodeIds[entry.key]}',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
+                              padding: const EdgeInsets.all(8.0),
+                              child: Container(
+                                width: 100, // ความกว้าง 20 px
+                                height: 100, // ความสูง 20 px
+                                color: Colors.red,
+                                child: Image.network(
+                                  'URL ',
+                                  fit: BoxFit.contain,
+                                ),
                               ),
                             ),
+                            Text(
+                              'ep${episodes[entry.key].split(' ')[1]}',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Spacer(),
+                            if (isLocked) Icon(Icons.lock), // เพิ่ม icon ที่นี่
+                            if (isLocked) Text('15 เหรียญ'),
                           ],
                         ),
                       ),
