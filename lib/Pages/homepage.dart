@@ -153,6 +153,7 @@ class MyHomePage extends StatelessWidget {
 
                     return GestureDetector(
                       onTap: () {
+                        print(description);
                         Navigator.push(
                           context,
                           MaterialPageRoute(

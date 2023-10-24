@@ -22,15 +22,10 @@ class DetailPage extends StatefulWidget {
 
   @override
   _DetailPageState createState() => _DetailPageState();
-
-  Future<bool> isUserLoggedIn() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('isLoggedIn') ?? false;
-  }
 }
 
 class _DetailPageState extends State<DetailPage> {
-  late User _user; //เก็บ uid ผู้ใช้
+  User? _user; // ทำให้ _user เป็น nullable
   late List<String> episodes = [];
   late List<String> episodeIds = [];
   String selectedEpisodeId = '';
@@ -39,13 +34,14 @@ class _DetailPageState extends State<DetailPage> {
   void initState() {
     super.initState();
     // ตรวจสอบสถานะการล็อกอินของผู้ใช้
-    _user = FirebaseAuth.instance.currentUser!;
+    _user = FirebaseAuth.instance.currentUser;
     fetchEpisodes();
   }
 
   Future<void> checkUserLoginStatus(bool isLocked, String episodeId) async {
     // ตรวจสอบว่าผู้ใช้ล็อกอินอยู่หรือไม่
     bool isLoggedIn = _user != null;
+
     if (isLoggedIn) {
       // มีการเข้าสู่ระบบ ให้ไปยังหน้า EpisodePage
       goToEpisodePage(episodeId);
@@ -232,80 +228,94 @@ class _DetailPageState extends State<DetailPage> {
                       ),
                       child: InkWell(
                         onTap: () async {
-                          String episode_id = episodeIds[entry.key];
-                          setState(() {
-                            selectedEpisodeId = episode_id;
-                          });
-
-                          if (isLocked) {
-                            // ดึงข้อมูล coin จาก Firestore
-                            DocumentSnapshot userDoc = await FirebaseFirestore
-                                .instance
-                                .collection('users')
-                                .doc(_user.uid)
-                                .get();
-                            int coins = userDoc['coin'];
-
-                            // ตรวจสอบว่ามีเหรียญพอหรือไม่
-                            if (coins >= 15) {
-                              // แสดงตัวเลือกการซื้อ
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: Text('EP ที่ติด Icon Lock'),
-                                    content: Text("ต้องการซื้อ EP นี้หรือไม่?"),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        child: Text('ยกเลิก'),
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                      ),
-                                      TextButton(
-                                        child: Text('ซื้อ'),
-                                        onPressed: () async {
-                                          // ลบเหรียญ 15 จาก Firestore
-                                          await FirebaseFirestore.instance
-                                              .collection('users')
-                                              .doc(_user.uid)
-                                              .update({
-                                            'coin': FieldValue.increment(-15),
-                                          });
-
-                                          // ทำการนำทางไปยังหน้า EpisodePage
-                                          Navigator.of(context).pop();
-                                          goToEpisodePage(episode_id);
-                                        },
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            } else {
-                              // แจ้งเตือนถ้าเงินไม่พอ
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: Text('เงินไม่พอ'),
-                                    content: Text(
-                                        "คุณไม่มีเหรียญเพียงพอที่จะซื้อ EP นี้"),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        child: Text('ตกลง'),
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            }
+                          if (_user == null) {
+                            // ถ้าผู้ใช้ไม่ได้เข้าสู่ระบบ ให้ไปยังหน้า MyProfile
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => MyProfile(),
+                              ),
+                            );
                           } else {
-                            // EP ไม่ติด Icon Lock ให้ไปยังหน้า EpisodePage โดยตรง
-                            goToEpisodePage(episode_id);
+                            // ถ้าผู้ใช้เข้าสู่ระบบ
+                            String episode_id = episodeIds[entry.key];
+                            setState(() {
+                              selectedEpisodeId = episode_id;
+                            });
+
+                            if (isLocked) {
+                              // ดึงข้อมูล coin จาก Firestore
+                              DocumentSnapshot userDoc = await FirebaseFirestore
+                                  .instance
+                                  .collection('users')
+                                  .doc(_user
+                                      ?.uid) // ใช้ null-aware operator ที่นี่
+                                  .get();
+
+                              // ตรวจสอบว่ามีเหรียญพอหรือไม่
+                              int coins = userDoc['coin'] ?? 0;
+
+                              if (coins >= 15) {
+                                // แสดงตัวเลือกการซื้อ
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: Text('EP ที่ติด Icon Lock'),
+                                      content:
+                                          Text("ต้องการซื้อ EP นี้หรือไม่?"),
+                                      actions: <Widget>[
+                                        TextButton(
+                                          child: Text('ยกเลิก'),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                        ),
+                                        TextButton(
+                                          child: Text('ซื้อ'),
+                                          onPressed: () async {
+                                            // ลบเหรียญ 15 จาก Firestore
+                                            await FirebaseFirestore.instance
+                                                .collection('users')
+                                                .doc(_user
+                                                    ?.uid) // ใช้ null-aware operator ที่นี่
+                                                .update({
+                                              'coin': FieldValue.increment(-15),
+                                            });
+
+                                            // ทำการนำทางไปยังหน้า EpisodePage
+                                            Navigator.of(context).pop();
+                                            goToEpisodePage(episode_id);
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              } else {
+                                // แจ้งเตือนถ้าเงินไม่พอ
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: Text('เงินไม่พอ'),
+                                      content: Text(
+                                          "คุณไม่มีเหรียญเพียงพอที่จะซื้อ EP นี้"),
+                                      actions: <Widget>[
+                                        TextButton(
+                                          child: Text('ตกลง'),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              }
+                            } else {
+                              // EP ไม่ติด Icon Lock ให้ไปยังหน้า EpisodePage โดยตรง
+                              goToEpisodePage(episode_id);
+                            }
                           }
                         },
                         child: Row(
@@ -314,8 +324,8 @@ class _DetailPageState extends State<DetailPage> {
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Container(
-                                width: 100, // ความกว้าง 20 px
-                                height: 100, // ความสูง 20 px
+                                width: 100,
+                                height: 100,
                                 color: Colors.red,
                               ),
                             ),
@@ -326,7 +336,7 @@ class _DetailPageState extends State<DetailPage> {
                               ),
                             ),
                             Spacer(),
-                            if (isLocked) Icon(Icons.lock), // เพิ่ม icon ที่นี่
+                            if (isLocked) Icon(Icons.lock),
                             if (isLocked) Text('15 เหรียญ'),
                           ],
                         ),
