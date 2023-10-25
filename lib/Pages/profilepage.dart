@@ -7,6 +7,7 @@ import 'package:apptoon/screen/login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:apptoon/screen/home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:apptoon/Pages/homepage.dart';
 
 class MyProfilePage extends StatefulWidget {
   final String? email;
@@ -28,7 +29,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
     // เมื่อคลิกที่ไอคอน "ออกจากระบบ" ให้นำทางไปยังหน้า Login
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => LoginPage(),
+        builder: (context) => HomePage(),
       ),
     );
   }

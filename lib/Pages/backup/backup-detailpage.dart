@@ -106,6 +106,7 @@ class _DetailPageState extends State<DetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
         title: Text('รายละเอียดเรื่อง'),
       ),
@@ -116,7 +117,7 @@ class _DetailPageState extends State<DetailPage> {
               padding: EdgeInsets.all(5),
               child: Card(
                 clipBehavior: Clip.antiAliasWithSaveLayer,
-                color: Colors.grey[300],
+                color: Color.fromARGB(255, 235, 177, 196),
                 elevation: 4,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -205,7 +206,7 @@ class _DetailPageState extends State<DetailPage> {
               padding: EdgeInsets.all(5),
               child: Card(
                 clipBehavior: Clip.antiAliasWithSaveLayer,
-                color: Colors.grey[300],
+                color: Colors.black,
                 elevation: 4,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -221,7 +222,7 @@ class _DetailPageState extends State<DetailPage> {
 
                     return Card(
                       clipBehavior: Clip.antiAliasWithSaveLayer,
-                      color: Colors.grey[200],
+                      color: Color.fromARGB(255, 235, 177, 196),
                       elevation: 4,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -348,32 +349,53 @@ class _DetailPageState extends State<DetailPage> {
                                           ? images[0]
                                           : ''; // ดึง URL ภาพแรกจาก images
 
-                                      return ClipRRect(
-                                        borderRadius: BorderRadius.circular(8),
-                                        child: SizedBox(
-                                          width: 100,
-                                          height: 100,
-                                          child: imageUrl.isNotEmpty
-                                              ? Image.network(
-                                                  imageUrl,
-                                                  fit: BoxFit.cover,
-                                                )
-                                              : Container(), // ถ้าไม่มี URL ให้ใช้ Container ว่าง
+                                      return Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          child: SizedBox(
+                                            width: 70,
+                                            height: 70,
+                                            child: imageUrl.isNotEmpty
+                                                ? Image.network(
+                                                    imageUrl,
+                                                    fit: BoxFit.cover,
+                                                  )
+                                                : Container(), // ถ้าไม่มี URL ให้ใช้ Container ว่าง
+                                          ),
                                         ),
                                       );
                                     }
                                   }
                                 },
                               ),
-                              Text(
-                                'ep${episodes[entry.key].split(' ')[1]}',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                              Column(
+                                children: [
+                                  Text(
+                                    'Ep ${episodes[entry.key].split(' ')[1]}',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                  Row(
+                                    children: [
+                                      Icon(Icons.favorite, color: Colors.white),
+                                      Text('data'),
+                                    ],
+                                  ),
+                                ],
                               ),
                               Spacer(),
-                              if (isLocked) Icon(Icons.lock),
-                              if (isLocked) Text('15 เหรียญ'),
+                              if (isLocked)
+                                Text('15', style: TextStyle(fontSize: 16)),
+                              if (isLocked)
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 10),
+                                  child: Icon(Icons.monetization_on_outlined,
+                                      color: Colors.black),
+                                ),
                             ],
                           )),
                     );
