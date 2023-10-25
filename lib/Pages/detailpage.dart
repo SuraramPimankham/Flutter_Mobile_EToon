@@ -340,8 +340,27 @@ class _DetailPageState extends State<DetailPage> {
                                 builder: (context, snapshot) {
                                   if (snapshot.connectionState ==
                                       ConnectionState.waiting) {
-                                    // แสดง Loading หรือ Placeholder ในระหว่างโหลดข้อมูล
-                                    return CircularProgressIndicator();
+                                    // แสดง CircularProgressIndicator ในระหว่างโหลดข้อมูล
+                                    return Padding(
+                                      padding: const EdgeInsets.all(8),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: SizedBox(
+                                          width: 70,
+                                          height: 70,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(15.0),
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 8,
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                      const Color.fromARGB(
+                                                          255, 255, 255, 255)),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
                                   } else {
                                     if (snapshot.hasError) {
                                       // ถ้าเกิดข้อผิดพลาดในการโหลดข้อมูล
@@ -358,23 +377,38 @@ class _DetailPageState extends State<DetailPage> {
                                           ? images[0]
                                           : ''; // ดึง URL ภาพแรกจาก images
 
-                                      return Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          child: SizedBox(
-                                            width: 70,
-                                            height: 70,
-                                            child: imageUrl.isNotEmpty
-                                                ? Image.network(
-                                                    imageUrl,
-                                                    fit: BoxFit.cover,
-                                                  )
-                                                : Container(), // ถ้าไม่มี URL ให้ใช้ Container ว่าง
+                                      if (imageUrl.isNotEmpty) {
+                                        // ถ้ามี URL ให้แสดงรูปภาพ
+                                        return Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            child: SizedBox(
+                                              width: 70,
+                                              height: 70,
+                                              child: Image.network(
+                                                imageUrl,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                      );
+                                        );
+                                      } else {
+                                        // ถ้าไม่มี URL ให้ใช้ Container ว่าง
+                                        return Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            child: SizedBox(
+                                              width: 70,
+                                              height: 70,
+                                              child: Container(),
+                                            ),
+                                          ),
+                                        );
+                                      }
                                     }
                                   }
                                 },
