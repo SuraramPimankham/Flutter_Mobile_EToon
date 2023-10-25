@@ -38,6 +38,13 @@ class _MyProfilePageState extends State<MyProfilePage> {
             },
           ),
         ],
+        leading: IconButton(
+          // ปุ่มเพิ่มเพื่อน
+          icon: Icon(Icons.person_add),
+          onPressed: () {
+            // ใส่โค้ดที่คุณต้องการให้เปิดหน้าถัดไปที่นี่
+          },
+        ),
         flexibleSpace: Container(
           alignment: Alignment.center,
           child: Container(
@@ -112,81 +119,737 @@ class _MyProfilePageState extends State<MyProfilePage> {
                     ),
                   ),
                 ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      color: Color.fromARGB(255, 241, 129, 166),
-                      child: GridView(
-                        padding: EdgeInsets.zero,
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 10,
-                          childAspectRatio: 1,
-                        ),
-                        scrollDirection: Axis.vertical,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Card(
-                              clipBehavior: Clip.antiAliasWithSaveLayer,
-                              color: Colors.blue,
-                              elevation: 4,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8)),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsetsDirectional.fromSTEB(
-                                        0, 5, 0, 5),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          Icons.monetization_on_outlined,
-                                          color: Colors.white,
-                                          size: 24,
-                                        ),
-                                        Text(' : 25 coins',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.white,
-                                            )),
-                                      ],
-                                    ),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      print('Button pressed...');
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      primary: Colors.pink,
-                                      elevation: 3,
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 24, vertical: 0),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    ),
-                                    child: Text('25 บาท',
-                                        style: TextStyle(
-                                            fontSize: 16, color: Colors.white)),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                )
+                // Expanded(
+                //   child: Padding(
+                //     padding: const EdgeInsets.all(8.0),
+                //     child: Container(
+                //       color: Color.fromARGB(255, 241, 129, 166),
+                //       child: GridView(
+                //         padding: EdgeInsets.zero,
+                //         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                //           crossAxisCount: 2,
+                //           crossAxisSpacing: 10,
+                //           mainAxisSpacing: 10,
+                //           childAspectRatio: 1,
+                //         ),
+                //         scrollDirection: Axis.vertical,
+                //         // children: [
+                //         //   //25 coins
+                //         //   Padding(
+                //         //     padding: const EdgeInsets.all(10.0),
+                //         //     child: Card(
+                //         //       clipBehavior: Clip.antiAliasWithSaveLayer,
+                //         //       color: Colors.blue,
+                //         //       elevation: 4,
+                //         //       shape: RoundedRectangleBorder(
+                //         //           borderRadius: BorderRadius.circular(8)),
+                //         //       child: Column(
+                //         //         mainAxisSize: MainAxisSize.max,
+                //         //         mainAxisAlignment:
+                //         //             MainAxisAlignment.spaceEvenly,
+                //         //         children: [
+                //         //           Padding(
+                //         //             padding: EdgeInsetsDirectional.fromSTEB(
+                //         //                 0, 5, 0, 5),
+                //         //             child: Row(
+                //         //               mainAxisSize: MainAxisSize.max,
+                //         //               mainAxisAlignment:
+                //         //                   MainAxisAlignment.center,
+                //         //               children: [
+                //         //                 Icon(
+                //         //                   Icons.monetization_on_outlined,
+                //         //                   color: Colors.white,
+                //         //                   size: 24,
+                //         //                 ),
+                //         //                 Text(' : 25 coins',
+                //         //                     style: TextStyle(
+                //         //                       fontSize: 16,
+                //         //                       color: Colors.white,
+                //         //                     ),),
+                //         //               ],
+                //         //             ),
+                //         //           ),
+                //         //           ElevatedButton(
+                //         //              onPressed: () {
+                //         //               int coinsToAdd = 25;
+                //         //               // ค้นหาเอกสารที่มีฟิลด์ 'email' เท่ากับ 'email' ที่ส่งมา
+                //         //               FirebaseFirestore.instance
+                //         //                   .collection('users')
+                //         //                   .where('email', isEqualTo: email)
+                //         //                   .get()
+                //         //                   .then((QuerySnapshot? querySnapshot) {
+                //         //                 // ใส่ ? เพื่อระบุว่า querySnapshot อาจเป็น null
+                //         //                 querySnapshot?.docs.forEach(
+                //         //                     (QueryDocumentSnapshot? document) {
+                //         //                   // ใส่ ? เพื่อระบุว่า document อาจเป็น null
+                //         //                   if (document != null) {
+                //         //                     int currentCoins = document[
+                //         //                         'coin']; // ใส่ ! เพื่อระบุว่า document ไม่เป็น null
+                //         //                     int newCoins =
+                //         //                         currentCoins + coinsToAdd;
+
+                //         //                     // อัปเดตค่าเหรียญใน Firebase Firestore
+                //         //                     String documentId = document.id;
+                //         //                     FirebaseFirestore.instance
+                //         //                         .collection('users')
+                //         //                         .doc(documentId)
+                //         //                         .update({
+                //         //                       'coin': newCoins
+                //         //                     }).then((_) {
+                //         //                       print('Coins added successfully');
+                //         //                     }).catchError((error) {
+                //         //                       print(
+                //         //                           'Error adding coins: $error');
+                //         //                     });
+                //         //                   }
+                //         //                 });
+                //         //               });
+                //         //             },
+                //         //             style: ElevatedButton.styleFrom(
+                //         //               primary: Colors.pink,
+                //         //               elevation: 3,
+                //         //               padding: EdgeInsets.symmetric(
+                //         //                   horizontal: 24, vertical: 0),
+                //         //               shape: RoundedRectangleBorder(
+                //         //                 borderRadius: BorderRadius.circular(8),
+                //         //               ),
+                //         //             ),
+                //         //             child: Text('25 บาท',
+                //         //                 style: TextStyle(
+                //         //                     fontSize: 16, color: Colors.white)),
+                //         //           )
+                //         //         ],
+                //         //       ),
+                //         //     ),
+                //         //   ),
+                //         //   //50 coins
+                //         //   Padding(
+                //         //     padding: const EdgeInsets.all(10.0),
+                //         //     child: Card(
+                //         //       clipBehavior: Clip.antiAliasWithSaveLayer,
+                //         //       color: Colors.blue,
+                //         //       elevation: 4,
+                //         //       shape: RoundedRectangleBorder(
+                //         //           borderRadius: BorderRadius.circular(8)),
+                //         //       child: Column(
+                //         //         mainAxisSize: MainAxisSize.max,
+                //         //         mainAxisAlignment:
+                //         //             MainAxisAlignment.spaceEvenly,
+                //         //         children: [
+                //         //           Padding(
+                //         //             padding: EdgeInsetsDirectional.fromSTEB(
+                //         //                 0, 5, 0, 5),
+                //         //             child: Row(
+                //         //               mainAxisSize: MainAxisSize.max,
+                //         //               mainAxisAlignment:
+                //         //                   MainAxisAlignment.center,
+                //         //               children: [
+                //         //                 Icon(
+                //         //                   Icons.monetization_on_outlined,
+                //         //                   color: Colors.white,
+                //         //                   size: 24,
+                //         //                 ),
+                //         //                 Text(' : 50 coins',
+                //         //                     style: TextStyle(
+                //         //                       fontSize: 16,
+                //         //                       color: Colors.white,
+                //         //                     )),
+                //         //               ],
+                //         //             ),
+                //         //           ),
+                //         //           ElevatedButton(
+                //         //             onPressed: () {
+                //         //               int coinsToAdd = 50;
+
+                //         //               // ค้นหาเอกสารที่มีฟิลด์ 'email' เท่ากับ 'email' ที่ส่งมา
+                //         //               FirebaseFirestore.instance
+                //         //                   .collection('users')
+                //         //                   .where('email', isEqualTo: email)
+                //         //                   .get()
+                //         //                   .then((QuerySnapshot? querySnapshot) {
+                //         //                 // ใส่ ? เพื่อระบุว่า querySnapshot อาจเป็น null
+                //         //                 querySnapshot?.docs.forEach(
+                //         //                     (QueryDocumentSnapshot? document) {
+                //         //                   // ใส่ ? เพื่อระบุว่า document อาจเป็น null
+                //         //                   if (document != null) {
+                //         //                     int currentCoins = document[
+                //         //                         'coin']; // ใส่ ! เพื่อระบุว่า document ไม่เป็น null
+                //         //                     int newCoins =
+                //         //                         currentCoins + coinsToAdd;
+
+                //         //                     // อัปเดตค่าเหรียญใน Firebase Firestore
+                //         //                     String documentId = document.id;
+                //         //                     FirebaseFirestore.instance
+                //         //                         .collection('users')
+                //         //                         .doc(documentId)
+                //         //                         .update({
+                //         //                       'coin': newCoins
+                //         //                     }).then((_) {
+                //         //                       print('Coins added successfully');
+                //         //                     }).catchError((error) {
+                //         //                       print(
+                //         //                           'Error adding coins: $error');
+                //         //                     });
+                //         //                   }
+                //         //                 });
+                //         //               });
+                //         //             },
+                //         //             style: ElevatedButton.styleFrom(
+                //         //               primary: Colors.pink,
+                //         //               elevation: 3,
+                //         //               padding: EdgeInsets.symmetric(
+                //         //                   horizontal: 24, vertical: 0),
+                //         //               shape: RoundedRectangleBorder(
+                //         //                 borderRadius: BorderRadius.circular(8),
+                //         //               ),
+                //         //             ),
+                //         //             child: Text('50 บาท',
+                //         //                 style: TextStyle(
+                //         //                     fontSize: 16, color: Colors.white)),
+                //         //           )
+                //         //         ],
+                //         //       ),
+                //         //     ),
+                //         //   ),
+                //         //   //75 coins
+                //         //   Padding(
+                //         //     padding: const EdgeInsets.all(10.0),
+                //         //     child: Card(
+                //         //       clipBehavior: Clip.antiAliasWithSaveLayer,
+                //         //       color: Colors.blue,
+                //         //       elevation: 4,
+                //         //       shape: RoundedRectangleBorder(
+                //         //           borderRadius: BorderRadius.circular(8)),
+                //         //       child: Column(
+                //         //         mainAxisSize: MainAxisSize.max,
+                //         //         mainAxisAlignment:
+                //         //             MainAxisAlignment.spaceEvenly,
+                //         //         children: [
+                //         //           Padding(
+                //         //             padding: EdgeInsetsDirectional.fromSTEB(
+                //         //                 0, 5, 0, 5),
+                //         //             child: Row(
+                //         //               mainAxisSize: MainAxisSize.max,
+                //         //               mainAxisAlignment:
+                //         //                   MainAxisAlignment.center,
+                //         //               children: [
+                //         //                 Icon(
+                //         //                   Icons.monetization_on_outlined,
+                //         //                   color: Colors.white,
+                //         //                   size: 24,
+                //         //                 ),
+                //         //                 Text(' : 75 coins',
+                //         //                     style: TextStyle(
+                //         //                       fontSize: 16,
+                //         //                       color: Colors.white,
+                //         //                     )),
+                //         //               ],
+                //         //             ),
+                //         //           ),
+                //         //           ElevatedButton(
+                //         //             onPressed: () {
+                //         //               int coinsToAdd = 75;
+
+                //         //               // ค้นหาเอกสารที่มีฟิลด์ 'email' เท่ากับ 'email' ที่ส่งมา
+                //         //               FirebaseFirestore.instance
+                //         //                   .collection('users')
+                //         //                   .where('email', isEqualTo: email)
+                //         //                   .get()
+                //         //                   .then((QuerySnapshot? querySnapshot) {
+                //         //                 // ใส่ ? เพื่อระบุว่า querySnapshot อาจเป็น null
+                //         //                 querySnapshot?.docs.forEach(
+                //         //                     (QueryDocumentSnapshot? document) {
+                //         //                   // ใส่ ? เพื่อระบุว่า document อาจเป็น null
+                //         //                   if (document != null) {
+                //         //                     int currentCoins = document[
+                //         //                         'coin']; // ใส่ ! เพื่อระบุว่า document ไม่เป็น null
+                //         //                     int newCoins =
+                //         //                         currentCoins + coinsToAdd;
+
+                //         //                     // อัปเดตค่าเหรียญใน Firebase Firestore
+                //         //                     String documentId = document.id;
+                //         //                     FirebaseFirestore.instance
+                //         //                         .collection('users')
+                //         //                         .doc(documentId)
+                //         //                         .update({
+                //         //                       'coin': newCoins
+                //         //                     }).then((_) {
+                //         //                       print('Coins added successfully');
+                //         //                     }).catchError((error) {
+                //         //                       print(
+                //         //                           'Error adding coins: $error');
+                //         //                     });
+                //         //                   }
+                //         //                 });
+                //         //               });
+                //         //             },
+                //         //             style: ElevatedButton.styleFrom(
+                //         //               primary: Colors.pink,
+                //         //               elevation: 3,
+                //         //               padding: EdgeInsets.symmetric(
+                //         //                   horizontal: 24, vertical: 0),
+                //         //               shape: RoundedRectangleBorder(
+                //         //                 borderRadius: BorderRadius.circular(8),
+                //         //               ),
+                //         //             ),
+                //         //             child: Text('75 บาท',
+                //         //                 style: TextStyle(
+                //         //                     fontSize: 16, color: Colors.white)),
+                //         //           )
+                //         //         ],
+                //         //       ),
+                //         //     ),
+                //         //   ),
+                //         //   // 100 coins
+                //         //   Padding(
+                //         //     padding: const EdgeInsets.all(10.0),
+                //         //     child: Card(
+                //         //       clipBehavior: Clip.antiAliasWithSaveLayer,
+                //         //       color: Colors.blue,
+                //         //       elevation: 4,
+                //         //       shape: RoundedRectangleBorder(
+                //         //           borderRadius: BorderRadius.circular(8)),
+                //         //       child: Column(
+                //         //         mainAxisSize: MainAxisSize.max,
+                //         //         mainAxisAlignment:
+                //         //             MainAxisAlignment.spaceEvenly,
+                //         //         children: [
+                //         //           Padding(
+                //         //             padding: EdgeInsetsDirectional.fromSTEB(
+                //         //                 0, 5, 0, 5),
+                //         //             child: Row(
+                //         //               mainAxisSize: MainAxisSize.max,
+                //         //               mainAxisAlignment:
+                //         //                   MainAxisAlignment.center,
+                //         //               children: [
+                //         //                 Icon(
+                //         //                   Icons.monetization_on_outlined,
+                //         //                   color: Colors.white,
+                //         //                   size: 24,
+                //         //                 ),
+                //         //                 Text(' : 100 coins',
+                //         //                     style: TextStyle(
+                //         //                       fontSize: 16,
+                //         //                       color: Colors.white,
+                //         //                     )),
+                //         //               ],
+                //         //             ),
+                //         //           ),
+                //         //           ElevatedButton(
+                //         //             onPressed: () {
+                //         //               int coinsToAdd = 100;
+
+                //         //               // ค้นหาเอกสารที่มีฟิลด์ 'email' เท่ากับ 'email' ที่ส่งมา
+                //         //               FirebaseFirestore.instance
+                //         //                   .collection('users')
+                //         //                   .where('email', isEqualTo: email)
+                //         //                   .get()
+                //         //                   .then((QuerySnapshot? querySnapshot) {
+                //         //                 // ใส่ ? เพื่อระบุว่า querySnapshot อาจเป็น null
+                //         //                 querySnapshot?.docs.forEach(
+                //         //                     (QueryDocumentSnapshot? document) {
+                //         //                   // ใส่ ? เพื่อระบุว่า document อาจเป็น null
+                //         //                   if (document != null) {
+                //         //                     int currentCoins = document[
+                //         //                         'coin']; // ใส่ ! เพื่อระบุว่า document ไม่เป็น null
+                //         //                     int newCoins =
+                //         //                         currentCoins + coinsToAdd;
+
+                //         //                     // อัปเดตค่าเหรียญใน Firebase Firestore
+                //         //                     String documentId = document.id;
+                //         //                     FirebaseFirestore.instance
+                //         //                         .collection('users')
+                //         //                         .doc(documentId)
+                //         //                         .update({
+                //         //                       'coin': newCoins
+                //         //                     }).then((_) {
+                //         //                       print('Coins added successfully');
+                //         //                     }).catchError((error) {
+                //         //                       print(
+                //         //                           'Error adding coins: $error');
+                //         //                     });
+                //         //                   }
+                //         //                 });
+                //         //               });
+                //         //             },
+                //         //             style: ElevatedButton.styleFrom(
+                //         //               primary: Colors.pink,
+                //         //               elevation: 3,
+                //         //               padding: EdgeInsets.symmetric(
+                //         //                   horizontal: 24, vertical: 0),
+                //         //               shape: RoundedRectangleBorder(
+                //         //                 borderRadius: BorderRadius.circular(8),
+                //         //               ),
+                //         //             ),
+                //         //             child: Text('100 บาท',
+                //         //                 style: TextStyle(
+                //         //                     fontSize: 16, color: Colors.white)),
+                //         //           )
+                //         //         ],
+                //         //       ),
+                //         //     ),
+                //         //   ),
+                //         //   // 125 coins
+                //         //   Padding(
+                //         //     padding: const EdgeInsets.all(10.0),
+                //         //     child: Card(
+                //         //       clipBehavior: Clip.antiAliasWithSaveLayer,
+                //         //       color: Colors.blue,
+                //         //       elevation: 4,
+                //         //       shape: RoundedRectangleBorder(
+                //         //           borderRadius: BorderRadius.circular(8)),
+                //         //       child: Column(
+                //         //         mainAxisSize: MainAxisSize.max,
+                //         //         mainAxisAlignment:
+                //         //             MainAxisAlignment.spaceEvenly,
+                //         //         children: [
+                //         //           Padding(
+                //         //             padding: EdgeInsetsDirectional.fromSTEB(
+                //         //                 0, 5, 0, 5),
+                //         //             child: Row(
+                //         //               mainAxisSize: MainAxisSize.max,
+                //         //               mainAxisAlignment:
+                //         //                   MainAxisAlignment.center,
+                //         //               children: [
+                //         //                 Icon(
+                //         //                   Icons.monetization_on_outlined,
+                //         //                   color: Colors.white,
+                //         //                   size: 24,
+                //         //                 ),
+                //         //                 Text(' : 125 coins',
+                //         //                     style: TextStyle(
+                //         //                       fontSize: 16,
+                //         //                       color: Colors.white,
+                //         //                     )),
+                //         //               ],
+                //         //             ),
+                //         //           ),
+                //         //           ElevatedButton(
+                //         //             onPressed: () {
+                //         //               int coinsToAdd = 125;
+
+                //         //               // ค้นหาเอกสารที่มีฟิลด์ 'email' เท่ากับ 'email' ที่ส่งมา
+                //         //               FirebaseFirestore.instance
+                //         //                   .collection('users')
+                //         //                   .where('email', isEqualTo: email)
+                //         //                   .get()
+                //         //                   .then((QuerySnapshot? querySnapshot) {
+                //         //                 // ใส่ ? เพื่อระบุว่า querySnapshot อาจเป็น null
+                //         //                 querySnapshot?.docs.forEach(
+                //         //                     (QueryDocumentSnapshot? document) {
+                //         //                   // ใส่ ? เพื่อระบุว่า document อาจเป็น null
+                //         //                   if (document != null) {
+                //         //                     int currentCoins = document[
+                //         //                         'coin']; // ใส่ ! เพื่อระบุว่า document ไม่เป็น null
+                //         //                     int newCoins =
+                //         //                         currentCoins + coinsToAdd;
+
+                //         //                     // อัปเดตค่าเหรียญใน Firebase Firestore
+                //         //                     String documentId = document.id;
+                //         //                     FirebaseFirestore.instance
+                //         //                         .collection('users')
+                //         //                         .doc(documentId)
+                //         //                         .update({
+                //         //                       'coin': newCoins
+                //         //                     }).then((_) {
+                //         //                       print('Coins added successfully');
+                //         //                     }).catchError((error) {
+                //         //                       print(
+                //         //                           'Error adding coins: $error');
+                //         //                     });
+                //         //                   }
+                //         //                 });
+                //         //               });
+                //         //             },
+                //         //             style: ElevatedButton.styleFrom(
+                //         //               primary: Colors.pink,
+                //         //               elevation: 3,
+                //         //               padding: EdgeInsets.symmetric(
+                //         //                   horizontal: 24, vertical: 0),
+                //         //               shape: RoundedRectangleBorder(
+                //         //                 borderRadius: BorderRadius.circular(8),
+                //         //               ),
+                //         //             ),
+                //         //             child: Text('125 บาท',
+                //         //                 style: TextStyle(
+                //         //                     fontSize: 16, color: Colors.white)),
+                //         //           )
+                //         //         ],
+                //         //       ),
+                //         //     ),
+                //         //   ),
+                //         //   // 150 coins
+                //         //   Padding(
+                //         //     padding: const EdgeInsets.all(10.0),
+                //         //     child: Card(
+                //         //       clipBehavior: Clip.antiAliasWithSaveLayer,
+                //         //       color: Colors.blue,
+                //         //       elevation: 4,
+                //         //       shape: RoundedRectangleBorder(
+                //         //           borderRadius: BorderRadius.circular(8)),
+                //         //       child: Column(
+                //         //         mainAxisSize: MainAxisSize.max,
+                //         //         mainAxisAlignment:
+                //         //             MainAxisAlignment.spaceEvenly,
+                //         //         children: [
+                //         //           Padding(
+                //         //             padding: EdgeInsetsDirectional.fromSTEB(
+                //         //                 0, 5, 0, 5),
+                //         //             child: Row(
+                //         //               mainAxisSize: MainAxisSize.max,
+                //         //               mainAxisAlignment:
+                //         //                   MainAxisAlignment.center,
+                //         //               children: [
+                //         //                 Icon(
+                //         //                   Icons.monetization_on_outlined,
+                //         //                   color: Colors.white,
+                //         //                   size: 24,
+                //         //                 ),
+                //         //                 Text(' : 150 coins',
+                //         //                     style: TextStyle(
+                //         //                       fontSize: 16,
+                //         //                       color: Colors.white,
+                //         //                     )),
+                //         //               ],
+                //         //             ),
+                //         //           ),
+                //         //           ElevatedButton(
+                //         //             onPressed: () {
+                //         //               int coinsToAdd = 150;
+
+                //         //               // ค้นหาเอกสารที่มีฟิลด์ 'email' เท่ากับ 'email' ที่ส่งมา
+                //         //               FirebaseFirestore.instance
+                //         //                   .collection('users')
+                //         //                   .where('email', isEqualTo: email)
+                //         //                   .get()
+                //         //                   .then((QuerySnapshot? querySnapshot) {
+                //         //                 // ใส่ ? เพื่อระบุว่า querySnapshot อาจเป็น null
+                //         //                 querySnapshot?.docs.forEach(
+                //         //                     (QueryDocumentSnapshot? document) {
+                //         //                   // ใส่ ? เพื่อระบุว่า document อาจเป็น null
+                //         //                   if (document != null) {
+                //         //                     int currentCoins = document[
+                //         //                         'coin']; // ใส่ ! เพื่อระบุว่า document ไม่เป็น null
+                //         //                     int newCoins =
+                //         //                         currentCoins + coinsToAdd;
+
+                //         //                     // อัปเดตค่าเหรียญใน Firebase Firestore
+                //         //                     String documentId = document.id;
+                //         //                     FirebaseFirestore.instance
+                //         //                         .collection('users')
+                //         //                         .doc(documentId)
+                //         //                         .update({
+                //         //                       'coin': newCoins
+                //         //                     }).then((_) {
+                //         //                       print('Coins added successfully');
+                //         //                     }).catchError((error) {
+                //         //                       print(
+                //         //                           'Error adding coins: $error');
+                //         //                     });
+                //         //                   }
+                //         //                 });
+                //         //               });
+                //         //             },
+                //         //             style: ElevatedButton.styleFrom(
+                //         //               primary: Colors.pink,
+                //         //               elevation: 3,
+                //         //               padding: EdgeInsets.symmetric(
+                //         //                   horizontal: 24, vertical: 0),
+                //         //               shape: RoundedRectangleBorder(
+                //         //                 borderRadius: BorderRadius.circular(8),
+                //         //               ),
+                //         //             ),
+                //         //             child: Text('150 บาท',
+                //         //                 style: TextStyle(
+                //         //                     fontSize: 16, color: Colors.white)),
+                //         //           )
+                //         //         ],
+                //         //       ),
+                //         //     ),
+                //         //   ),
+                //         //   // 175 coins
+                //         //   Padding(
+                //         //     padding: const EdgeInsets.all(10.0),
+                //         //     child: Card(
+                //         //       clipBehavior: Clip.antiAliasWithSaveLayer,
+                //         //       color: Colors.blue,
+                //         //       elevation: 4,
+                //         //       shape: RoundedRectangleBorder(
+                //         //           borderRadius: BorderRadius.circular(8)),
+                //         //       child: Column(
+                //         //         mainAxisSize: MainAxisSize.max,
+                //         //         mainAxisAlignment:
+                //         //             MainAxisAlignment.spaceEvenly,
+                //         //         children: [
+                //         //           Padding(
+                //         //             padding: EdgeInsetsDirectional.fromSTEB(
+                //         //                 0, 5, 0, 5),
+                //         //             child: Row(
+                //         //               mainAxisSize: MainAxisSize.max,
+                //         //               mainAxisAlignment:
+                //         //                   MainAxisAlignment.center,
+                //         //               children: [
+                //         //                 Icon(
+                //         //                   Icons.monetization_on_outlined,
+                //         //                   color: Colors.white,
+                //         //                   size: 24,
+                //         //                 ),
+                //         //                 Text(' : 175 coins',
+                //         //                     style: TextStyle(
+                //         //                       fontSize: 16,
+                //         //                       color: Colors.white,
+                //         //                     )),
+                //         //               ],
+                //         //             ),
+                //         //           ),
+                //         //           ElevatedButton(
+                //         //             onPressed: () {
+                //         //               int coinsToAdd = 175;
+
+                //         //               // ค้นหาเอกสารที่มีฟิลด์ 'email' เท่ากับ 'email' ที่ส่งมา
+                //         //               FirebaseFirestore.instance
+                //         //                   .collection('users')
+                //         //                   .where('email', isEqualTo: email)
+                //         //                   .get()
+                //         //                   .then((QuerySnapshot? querySnapshot) {
+                //         //                 // ใส่ ? เพื่อระบุว่า querySnapshot อาจเป็น null
+                //         //                 querySnapshot?.docs.forEach(
+                //         //                     (QueryDocumentSnapshot? document) {
+                //         //                   // ใส่ ? เพื่อระบุว่า document อาจเป็น null
+                //         //                   if (document != null) {
+                //         //                     int currentCoins = document[
+                //         //                         'coin']; // ใส่ ! เพื่อระบุว่า document ไม่เป็น null
+                //         //                     int newCoins =
+                //         //                         currentCoins + coinsToAdd;
+
+                //         //                     // อัปเดตค่าเหรียญใน Firebase Firestore
+                //         //                     String documentId = document.id;
+                //         //                     FirebaseFirestore.instance
+                //         //                         .collection('users')
+                //         //                         .doc(documentId)
+                //         //                         .update({
+                //         //                       'coin': newCoins
+                //         //                     }).then((_) {
+                //         //                       print('Coins added successfully');
+                //         //                     }).catchError((error) {
+                //         //                       print(
+                //         //                           'Error adding coins: $error');
+                //         //                     });
+                //         //                   }
+                //         //                 });
+                //         //               });
+                //         //             },
+                //         //             style: ElevatedButton.styleFrom(
+                //         //               primary: Colors.pink,
+                //         //               elevation: 3,
+                //         //               padding: EdgeInsets.symmetric(
+                //         //                   horizontal: 24, vertical: 0),
+                //         //               shape: RoundedRectangleBorder(
+                //         //                 borderRadius: BorderRadius.circular(8),
+                //         //               ),
+                //         //             ),
+                //         //             child: Text('175 บาท',
+                //         //                 style: TextStyle(
+                //         //                     fontSize: 16, color: Colors.white)),
+                //         //           )
+                //         //         ],
+                //         //       ),
+                //         //     ),
+                //         //   ),
+                //         //   // 200 coins
+                //         //   Padding(
+                //         //     padding: const EdgeInsets.all(10.0),
+                //         //     child: Card(
+                //         //       clipBehavior: Clip.antiAliasWithSaveLayer,
+                //         //       color: Colors.blue,
+                //         //       elevation: 4,
+                //         //       shape: RoundedRectangleBorder(
+                //         //           borderRadius: BorderRadius.circular(8)),
+                //         //       child: Column(
+                //         //         mainAxisSize: MainAxisSize.max,
+                //         //         mainAxisAlignment:
+                //         //             MainAxisAlignment.spaceEvenly,
+                //         //         children: [
+                //         //           Padding(
+                //         //             padding: EdgeInsetsDirectional.fromSTEB(
+                //         //                 0, 5, 0, 5),
+                //         //             child: Row(
+                //         //               mainAxisSize: MainAxisSize.max,
+                //         //               mainAxisAlignment:
+                //         //                   MainAxisAlignment.center,
+                //         //               children: [
+                //         //                 Icon(
+                //         //                   Icons.monetization_on_outlined,
+                //         //                   color: Colors.white,
+                //         //                   size: 24,
+                //         //                 ),
+                //         //                 Text(' : 200 coins',
+                //         //                     style: TextStyle(
+                //         //                       fontSize: 16,
+                //         //                       color: Colors.white,
+                //         //                     )),
+                //         //               ],
+                //         //             ),
+                //         //           ),
+                //         //           ElevatedButton(
+                //         //             onPressed: () {
+                //         //               int coinsToAdd = 200;
+
+                //         //               // ค้นหาเอกสารที่มีฟิลด์ 'email' เท่ากับ 'email' ที่ส่งมา
+                //         //               FirebaseFirestore.instance
+                //         //                   .collection('users')
+                //         //                   .where('email', isEqualTo: email)
+                //         //                   .get()
+                //         //                   .then((QuerySnapshot? querySnapshot) {
+                //         //                 // ใส่ ? เพื่อระบุว่า querySnapshot อาจเป็น null
+                //         //                 querySnapshot?.docs.forEach(
+                //         //                     (QueryDocumentSnapshot? document) {
+                //         //                   // ใส่ ? เพื่อระบุว่า document อาจเป็น null
+                //         //                   if (document != null) {
+                //         //                     int currentCoins = document[
+                //         //                         'coin']; // ใส่ ! เพื่อระบุว่า document ไม่เป็น null
+                //         //                     int newCoins =
+                //         //                         currentCoins + coinsToAdd;
+
+                //         //                     // อัปเดตค่าเหรียญใน Firebase Firestore
+                //         //                     String documentId = document.id;
+                //         //                     FirebaseFirestore.instance
+                //         //                         .collection('users')
+                //         //                         .doc(documentId)
+                //         //                         .update({
+                //         //                       'coin': newCoins
+                //         //                     }).then((_) {
+                //         //                       print('Coins added successfully');
+                //         //                     }).catchError((error) {
+                //         //                       print(
+                //         //                           'Error adding coins: $error');
+                //         //                     });
+                //         //                   }
+                //         //                 });
+                //         //               });
+                //         //             },
+                //         //             style: ElevatedButton.styleFrom(
+                //         //               primary: Colors.pink,
+                //         //               elevation: 3,
+                //         //               padding: EdgeInsets.symmetric(
+                //         //                   horizontal: 24, vertical: 0),
+                //         //               shape: RoundedRectangleBorder(
+                //         //                 borderRadius: BorderRadius.circular(8),
+                //         //               ),
+                //         //             ),
+                //         //             child: Text('25 บาท',
+                //         //                 style: TextStyle(
+                //         //                     fontSize: 16, color: Colors.white)),
+                //         //           )
+                //         //         ],
+                //         //       ),
+                //         //     ),
+                //         //   ),
+                //         // ],
+                //       ),
+                //     ),
+                //   ),
+                // )
               ],
             );
           }

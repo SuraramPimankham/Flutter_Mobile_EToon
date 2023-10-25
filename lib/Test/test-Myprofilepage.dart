@@ -73,7 +73,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
         ),
         body: TabBarView(
           children: [
-            AddCoinsPage(email: widget.email),
+            AddCoinsPage(),
             AddFriendPage(),
             MyCartoonsPage(),
           ],
