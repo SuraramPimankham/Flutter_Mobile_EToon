@@ -1,14 +1,18 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
+import 'package:apptoon/profile.dart';
 
 class EpisodePage extends StatefulWidget {
   final String toonId;
   final String episodeId;
+  final List<String> episodes;
 
-  EpisodePage({required this.toonId, required this.episodeId});
+  EpisodePage(
+      {required this.toonId, required this.episodeId, required this.episodes});
 
   @override
   _EpisodePageState createState() => _EpisodePageState();
@@ -19,6 +23,7 @@ void main() {
     home: EpisodePage(
       toonId: 'yourToonId',
       episodeId: 'yourEpisodeId',
+      episodes: [],
     ),
   ));
 }
@@ -27,6 +32,7 @@ class _EpisodePageState extends State<EpisodePage> {
   bool isFavorite = false; //เก็บสถานะว่าผู้ใช้ได้กดปุ่ม "Favorite" หรือไม่
   int count = 0; //เก็บจำนวนครั้งที่ผู้ใช้กดปุ่ม "Favorite" โดยค่าเริ่มต้นคือ 0
   final GlobalKey commentKey = GlobalKey();
+  User? _user;
 
   late List<String> images = [];
   double? _ratingBarValue;
@@ -37,8 +43,77 @@ class _EpisodePageState extends State<EpisodePage> {
   @override
   void initState() {
     super.initState();
-    fetchImages();
     scrollController.addListener(_onScroll);
+    _user = FirebaseAuth.instance.currentUser;
+    fetchImages();
+  }
+
+  Future<void> epsisodeID_FilterNext() async {
+    String episodeIdString = widget.episodeId.split(RegExp(r'[0-9]'))[0];
+    int episodeIdNumber =
+        int.parse(widget.episodeId.replaceAll(RegExp(r'[^0-9]'), ''));
+    int nextEpisodeIdNumber = episodeIdNumber + 1;
+    String nextEpisodeId = '$episodeIdString$nextEpisodeIdNumber';
+
+    widget.episodes.sort((a, b) {
+      int aEpisodeNumber = int.parse(a.split(' ')[1]);
+      int bEpisodeNumber = int.parse(b.split(' ')[1]);
+      return aEpisodeNumber
+          .compareTo(bEpisodeNumber); // Sort in ascending order
+    });
+
+    int currentIndex = widget.episodes.indexWhere((episode) {
+      int episodeNumber = int.parse(episode.split(' ')[1]);
+      return episodeNumber == episodeIdNumber;
+    });
+    print(_user);
+
+    if (_user == null &&
+        episodeIdNumber > 0 &&
+        episodeIdNumber <= 2 &&
+        currentIndex < widget.episodes.length - 1) {
+      print('1');
+      // Navigate to the next episode
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => EpisodePage(
+            toonId: widget.toonId,
+            episodeId: nextEpisodeId,
+            episodes: widget.episodes,
+          ),
+        ),
+      );
+    } else if (_user == null &&
+        episodeIdNumber > 0 &&
+        episodeIdNumber > 2 &&
+        currentIndex < widget.episodes.length - 1) {
+      print('2');
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => MyProfile(),
+        ),
+      );
+    }
+  }
+
+  Future<void> epsisodeID_FilterBack() async {
+    String episodeIdString = widget.episodeId.split(RegExp(r'[0-9]'))[0];
+    int episodeIdNumber =
+        int.parse(widget.episodeId.replaceAll(RegExp(r'[^0-9]'), ''));
+    if (episodeIdNumber > 1) {
+      int nextEpisodeIdNumber = episodeIdNumber - 1;
+      String nextEpisodeId = '$episodeIdString$nextEpisodeIdNumber';
+      // Navigate to the next episode
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => EpisodePage(
+            toonId: widget.toonId,
+            episodeId: nextEpisodeId,
+            episodes: widget.episodes,
+          ),
+        ),
+      );
+    } else {}
   }
 
   Future<void> fetchImages() async {
@@ -266,8 +341,6 @@ class _EpisodePageState extends State<EpisodePage> {
                           '$count',
                           style: TextStyle(fontSize: 16),
                         ),
-                       
-
                       ],
                     ),
                     Row(
@@ -279,7 +352,7 @@ class _EpisodePageState extends State<EpisodePage> {
                             size: 24,
                           ),
                           onPressed: () {
-                            // Handle back button tap
+                            epsisodeID_FilterBack();
                           },
                         ),
                         IconButton(
@@ -289,7 +362,7 @@ class _EpisodePageState extends State<EpisodePage> {
                             size: 24,
                           ),
                           onPressed: () {
-                            // Handle forward button tap
+                            epsisodeID_FilterNext();
                           },
                         ),
                       ],

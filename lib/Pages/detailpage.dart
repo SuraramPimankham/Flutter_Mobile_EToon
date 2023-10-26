@@ -64,6 +64,7 @@ class _DetailPageState extends State<DetailPage> {
         builder: (context) => EpisodePage(
           toonId: widget.id,
           episodeId: episodeId,
+          episodes: episodes,
         ),
       ),
     );
@@ -87,6 +88,7 @@ class _DetailPageState extends State<DetailPage> {
           String episode = doc['ep'];
           episodes.add('EP $episode');
           episodeIds.add(episode_id);
+          
         });
 
         episodes.sort((a, b) {
