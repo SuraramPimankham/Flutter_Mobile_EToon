@@ -45,8 +45,10 @@ class _DetailPageState extends State<DetailPage> {
     if (isLoggedIn) {
       // มีการเข้าสู่ระบบ ให้ไปยังหน้า EpisodePage
       goToEpisodePage(episodeId);
+    } else if (!isLoggedIn && !isLocked) {
+      goToEpisodePage(episodeId);
     } else {
-      // ไม่มีการเข้าสู่ระบบ ให้ไปยังหน้า MyProfile
+      // ถ้าตอนนี้มีการล็อค
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => MyProfile(),
@@ -106,6 +108,7 @@ class _DetailPageState extends State<DetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
         title: Text('รายละเอียดเรื่อง'),
       ),
@@ -116,7 +119,7 @@ class _DetailPageState extends State<DetailPage> {
               padding: EdgeInsets.all(5),
               child: Card(
                 clipBehavior: Clip.antiAliasWithSaveLayer,
-                color: Colors.grey[300],
+                color: Color.fromARGB(255, 235, 177, 196),
                 elevation: 4,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -205,7 +208,7 @@ class _DetailPageState extends State<DetailPage> {
               padding: EdgeInsets.all(5),
               child: Card(
                 clipBehavior: Clip.antiAliasWithSaveLayer,
-                color: Colors.grey[300],
+                color: Colors.black,
                 elevation: 4,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -221,14 +224,21 @@ class _DetailPageState extends State<DetailPage> {
 
                     return Card(
                       clipBehavior: Clip.antiAliasWithSaveLayer,
-                      color: Colors.grey[200],
+                      color: Color.fromARGB(255, 235, 177, 196),
                       elevation: 4,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: InkWell(
                           onTap: () async {
-                            if (_user == null) {
+                            if (_user == null && !isLocked) {
+                              // ถ้าผู้ใช้ไม่ได้เข้าสู่ระบบ และตอนไม่ได้ lock ให้ไปยังหน้า
+                              String episode_id = episodeIds[entry.key];
+                              setState(() {
+                                selectedEpisodeId = episode_id;
+                              });
+                              goToEpisodePage(episode_id);
+                            } else if (_user == null) {
                               // ถ้าผู้ใช้ไม่ได้เข้าสู่ระบบ ให้ไปยังหน้า MyProfile
                               Navigator.of(context).push(
                                 MaterialPageRoute(
@@ -330,8 +340,24 @@ class _DetailPageState extends State<DetailPage> {
                                 builder: (context, snapshot) {
                                   if (snapshot.connectionState ==
                                       ConnectionState.waiting) {
-                                    // แสดง Loading หรือ Placeholder ในระหว่างโหลดข้อมูล
-                                    return CircularProgressIndicator();
+                                    // แสดง CircularProgressIndicator ในระหว่างโหลดข้อมูล
+                                    return Padding(
+                                      padding: const EdgeInsets.all(8),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: SizedBox(
+                                          width: 70,
+                                          height: 70,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 10,
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                    const Color.fromARGB(
+                                                        255, 255, 255, 255)),
+                                          ),
+                                        ),
+                                      ),
+                                    );
                                   } else {
                                     if (snapshot.hasError) {
                                       // ถ้าเกิดข้อผิดพลาดในการโหลดข้อมูล
@@ -348,32 +374,68 @@ class _DetailPageState extends State<DetailPage> {
                                           ? images[0]
                                           : ''; // ดึง URL ภาพแรกจาก images
 
-                                      return ClipRRect(
-                                        borderRadius: BorderRadius.circular(8),
-                                        child: SizedBox(
-                                          width: 100,
-                                          height: 100,
-                                          child: imageUrl.isNotEmpty
-                                              ? Image.network(
-                                                  imageUrl,
-                                                  fit: BoxFit.cover,
-                                                )
-                                              : Container(), // ถ้าไม่มี URL ให้ใช้ Container ว่าง
-                                        ),
-                                      );
+                                      if (imageUrl.isNotEmpty) {
+                                        // ถ้ามี URL ให้แสดงรูปภาพ
+                                        return Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            child: SizedBox(
+                                              width: 70,
+                                              height: 70,
+                                              child: Image.network(
+                                                imageUrl,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      } else {
+                                        // ถ้าไม่มี URL ให้ใช้ Container ว่าง
+                                        return Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            child: SizedBox(
+                                              width: 70,
+                                              height: 70,
+                                              child: Container(),
+                                            ),
+                                          ),
+                                        );
+                                      }
                                     }
                                   }
                                 },
                               ),
-                              Text(
-                                'ep${episodes[entry.key].split(' ')[1]}',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                              Column(
+                                children: [
+                                  Text(
+                                    'Ep ${episodes[entry.key].split(' ')[1]}',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                  Row(
+                                    children: [
+                                      Icon(Icons.favorite, color: Colors.white),
+                                      Text('data'),
+                                    ],
+                                  ),
+                                ],
                               ),
                               Spacer(),
-                              if (isLocked) Icon(Icons.lock),
-                              if (isLocked) Text('15 เหรียญ'),
+                              if (isLocked)
+                                Text('15', style: TextStyle(fontSize: 16)),
+                              if (isLocked)
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 10),
+                                  child: Icon(Icons.monetization_on_outlined,
+                                      color: Colors.black),
+                                ),
                             ],
                           )),
                     );
