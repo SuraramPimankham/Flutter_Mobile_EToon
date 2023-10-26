@@ -42,7 +42,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
         appBar: AppBar(
           actions: <Widget>[
             IconButton(
-              icon: Icon(Icons.exit_to_app),
+              icon: Icon(Icons.power_settings_new),
               onPressed: () {
                 signOut(context);
               },
