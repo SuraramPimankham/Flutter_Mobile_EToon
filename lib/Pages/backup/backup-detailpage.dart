@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:apptoon/Pages/episode.dart';
@@ -29,6 +31,8 @@ class _DetailPageState extends State<DetailPage> {
   late List<String> episodes = [];
   late List<String> episodeIds = [];
   String selectedEpisodeId = '';
+  bool isPressed = false;
+  int count = 0;
 
   @override
   void initState() {
@@ -36,6 +40,27 @@ class _DetailPageState extends State<DetailPage> {
     // ตรวจสอบสถานะการล็อกอินของผู้ใช้
     _user = FirebaseAuth.instance.currentUser;
     fetchEpisodes();
+  }
+
+  Stream<int> fetchRating(String episodeId) {
+    final episodeRef =
+        FirebaseFirestore.instance.collection(widget.id).doc(episodeId);
+
+    return episodeRef.snapshots().map((document) {
+      if (document.exists) {
+        final rating = document.data()?['rating'];
+        if (rating is int) {
+          return rating;
+        } else {
+          return 0; // ถ้า rating ไม่ใช่ int ให้คืนค่าเริ่มต้น 0
+        }
+      } else {
+        return 0; // ค่าคะแนนเริ่มต้นถ้าไม่พบข้อมูล
+      }
+    }).handleError((error) {
+      print('เกิดข้อผิดพลาดในการดึงคะแนนจาก Firestore: $error');
+      return 0; // จัดการข้อผิดพลาดโดยการให้ค่าเริ่มต้น 0
+    });
   }
 
   Future<void> checkUserLoginStatus(bool isLocked, String episodeId) async {
@@ -64,6 +89,7 @@ class _DetailPageState extends State<DetailPage> {
         builder: (context) => EpisodePage(
           toonId: widget.id,
           episodeId: episodeId,
+          episodes: episodes,
         ),
       ),
     );
@@ -143,61 +169,83 @@ class _DetailPageState extends State<DetailPage> {
                       ),
                     ),
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Title: ',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Expanded(
-                                child: Text(
-                                  widget.title,
+                      child: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(''),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Title: ',
                                   style: TextStyle(
-                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Author: ',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Expanded(
-                                child: Text(
-                                  widget.author,
-                                  style: TextStyle(
-                                    fontSize: 16,
+                                Expanded(
+                                  child: Text(
+                                    widget.title,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.only(right: 10),
-                                child: Icon(
-                                  Icons.favorite_border,
-                                  color: Colors.grey,
-                                  size: 24,
+                              ],
+                            ),
+                            Text(''),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Author: ',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
+                                Expanded(
+                                  child: Text(
+                                    widget.author,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                IconButton(
+                                  icon: Icon(
+                                    isPressed
+                                        ? Icons.favorite
+                                        : Icons
+                                            .favorite_border, // ใช้ Icons.favorite ถ้าถูกคลิก
+                                    color: isPressed
+                                        ? Colors.red
+                                        : Colors.grey, // ใช้สีแดงถ้าถูกคลิก
+                                    size: 24,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      isPressed = !isPressed;
+                                      count = isPressed ? 1 : 0;
+                                    });
+                                  },
+                                ),
+                                Text(
+                                  '$count',
+                                  style: TextStyle(
+                                    fontWeight: isPressed
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -254,12 +302,11 @@ class _DetailPageState extends State<DetailPage> {
 
                               if (isLocked) {
                                 // ดึงข้อมูล coin จาก Firestore
-                                DocumentSnapshot userDoc = await FirebaseFirestore
-                                    .instance
-                                    .collection('users')
-                                    .doc(_user
-                                        ?.uid) // ใช้ null-aware operator ที่นี่
-                                    .get();
+                                DocumentSnapshot userDoc =
+                                    await FirebaseFirestore.instance
+                                        .collection('users')
+                                        .doc(_user?.uid)
+                                        .get();
 
                                 // ตรวจสอบว่ามีเหรียญพอหรือไม่
                                 int coins = userDoc['coin'] ?? 0;
@@ -348,12 +395,15 @@ class _DetailPageState extends State<DetailPage> {
                                         child: SizedBox(
                                           width: 70,
                                           height: 70,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 10,
-                                            valueColor:
-                                                AlwaysStoppedAnimation<Color>(
-                                                    const Color.fromARGB(
-                                                        255, 255, 255, 255)),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(15.0),
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 8,
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                      const Color.fromARGB(
+                                                          255, 255, 255, 255)),
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -422,7 +472,25 @@ class _DetailPageState extends State<DetailPage> {
                                   Row(
                                     children: [
                                       Icon(Icons.favorite, color: Colors.white),
-                                      Text('data'),
+                                      //  แสดง data
+                                      StreamBuilder<int>(
+                                        stream:
+                                            fetchRating(episodeIds[entry.key]),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.connectionState ==
+                                              ConnectionState.waiting) {
+                                            return CircularProgressIndicator();
+                                          } else if (snapshot.hasError) {
+                                            return Text(
+                                                'เกิดข้อผิดพลาด: ${snapshot.error}');
+                                          } else {
+                                            final rating = snapshot.data;
+                                            final displayRating =
+                                                (rating != null) ? rating : 0;
+                                            return Text('$displayRating');
+                                          }
+                                        },
+                                      )
                                     ],
                                   ),
                                 ],

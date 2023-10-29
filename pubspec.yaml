@@ -17,7 +17,7 @@ dependencies:
   curved_navigation_bar: ^1.0.3
   fan_carousel_image_slider: ^0.1.2
   firebase_auth: ^4.10.0
-  firebase_core: ^2.16.0
+  firebase_core: ^2.20.0
   firebase_database: ^10.2.6
   firebase_storage: ^11.2.7
   flip_card: ^0.7.0

@@ -1,14 +1,18 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
+import 'package:apptoon/profile.dart';
 
 class EpisodePage extends StatefulWidget {
   final String toonId;
   final String episodeId;
+  final List<String> episodes;
 
-  EpisodePage({required this.toonId, required this.episodeId});
+  EpisodePage(
+      {required this.toonId, required this.episodeId, required this.episodes});
 
   @override
   _EpisodePageState createState() => _EpisodePageState();
@@ -19,6 +23,7 @@ void main() {
     home: EpisodePage(
       toonId: 'yourToonId',
       episodeId: 'yourEpisodeId',
+      episodes: [],
     ),
   ));
 }
@@ -26,6 +31,9 @@ void main() {
 class _EpisodePageState extends State<EpisodePage> {
   bool isFavorite = false; //เก็บสถานะว่าผู้ใช้ได้กดปุ่ม "Favorite" หรือไม่
   int count = 0; //เก็บจำนวนครั้งที่ผู้ใช้กดปุ่ม "Favorite" โดยค่าเริ่มต้นคือ 0
+  final GlobalKey commentKey = GlobalKey();
+  User? _user;
+
   late List<String> images = [];
   double? _ratingBarValue;
   final scrollController = AutoScrollController();
@@ -35,8 +43,161 @@ class _EpisodePageState extends State<EpisodePage> {
   @override
   void initState() {
     super.initState();
-    fetchImages();
     scrollController.addListener(_onScroll);
+    _user = FirebaseAuth.instance.currentUser;
+    fetchImages();
+  }
+
+  Future<int> getRatingFromFirestore(String toonId, String episodeId) async {
+    try {
+      final episodeRef =
+          FirebaseFirestore.instance.collection(toonId).doc(episodeId);
+
+      final document = await episodeRef.get();
+      if (document.exists) {
+        final rating = document.data()?['rating'] as int;
+        return rating ?? 0;
+      }
+      return 0; // ถ้าไม่มีเอกสารหรือไม่มีฟิล "rating"
+    } catch (e) {
+      print('Error fetching rating from Firestore: $e');
+      return 0; // ในกรณีที่เกิดข้อผิดพลาด
+    }
+  }
+
+  Stream<bool> checkIfUserIsFavoriteStream(String toonId, String episodeId) {
+    // สร้างและคืนค่า Stream จาก Firestore ที่ติดตาม user_favorite ของเอกสารนี้
+    return FirebaseFirestore.instance
+        .collection(toonId)
+        .doc(episodeId)
+        .snapshots()
+        .map((snapshot) {
+      if (snapshot.exists) {
+        final userFavorite = snapshot.data()?['user_favorite'] as List;
+        final userUid = FirebaseAuth.instance.currentUser?.uid;
+        return userUid != null && userFavorite.contains(userUid);
+      }
+      return false; // ถ้าไม่มีเอกสารหรือไม่มีฟิล "user_favorite"
+    });
+  }
+
+  Future<void> updateRatingInFirestore(
+      String toonId, String episodeId, bool isFavorite) async {
+    try {
+      final uid_user = _user?.uid;
+
+      // อ้างอิงไปยังเอกสารใน Firestore
+      final episodeRef =
+          FirebaseFirestore.instance.collection(toonId).doc(episodeId);
+
+      final document = await episodeRef.get();
+
+      if (document.exists) {
+        // ตรวจสอบว่าฟิล "user_favorite" มีอยู่ในเอกสารหรือไม่
+        final userFavoriteExists =
+            document.data()!.containsKey('user_favorite');
+
+        // ตรวจสอบว่า UID ของผู้ใช้อยู่ในฟิล "user_favorite" หรือไม่
+        final userFavorite = userFavoriteExists
+            ? (document.data()!['user_favorite'] as List)
+            : [];
+
+        if (uid_user != null) {
+          if (userFavorite.contains(uid_user)) {
+            // UID ของผู้ใช้อยู่ใน "user_favorite", ดังนั้นลดคะแนน (-1) และลบ UID ออกจาก "user_favorite"
+            await episodeRef.update({
+              'rating': FieldValue.increment(-1),
+              'user_favorite': FieldValue.arrayRemove([uid_user])
+            });
+          } else {
+            // UID ของผู้ใช้ไม่อยู่ใน "user_favorite", ดังนั้นเพิ่มคะแนน (+1) และเพิ่ม UID เข้าไปใน "user_favorite"
+            await episodeRef.update({
+              'rating': FieldValue.increment(1),
+              'user_favorite': FieldValue.arrayUnion([uid_user])
+            });
+          }
+        }
+      }
+    } catch (e) {
+      print(
+          'เกิดข้อผิดพลาดในการอัปเดต rating และ user_favorite ใน Firestore: $e');
+    }
+  }
+
+  Future<void> epsisodeID_FilterNext() async {
+    String episodeIdString = widget.episodeId.split(RegExp(r'[0-9]'))[0];
+    int episodeIdNumber =
+        int.parse(widget.episodeId.replaceAll(RegExp(r'[^0-9]'), ''));
+    int nextEpisodeIdNumber = episodeIdNumber + 1;
+    String nextEpisodeId = '$episodeIdString$nextEpisodeIdNumber';
+
+    widget.episodes.sort((a, b) {
+      int aEpisodeNumber = int.parse(a.split(' ')[1]);
+      int bEpisodeNumber = int.parse(b.split(' ')[1]);
+      return aEpisodeNumber
+          .compareTo(bEpisodeNumber); // Sort in ascending order
+    });
+
+    int currentIndex = widget.episodes.indexWhere((episode) {
+      int episodeNumber = int.parse(episode.split(' ')[1]);
+      return episodeNumber == episodeIdNumber;
+    });
+    if (_user == null &&
+        episodeIdNumber > 0 &&
+        episodeIdNumber <= 2 &&
+        currentIndex < widget.episodes.length - 1) {
+      print('1');
+      // Navigate to the next episode
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => EpisodePage(
+            toonId: widget.toonId,
+            episodeId: nextEpisodeId,
+            episodes: widget.episodes,
+          ),
+        ),
+      );
+    } else if (_user == null &&
+        episodeIdNumber > 0 &&
+        episodeIdNumber > 2 &&
+        currentIndex < widget.episodes.length - 1) {
+      print('2');
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => MyProfile(),
+        ),
+      );
+    } else {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => EpisodePage(
+            toonId: widget.toonId,
+            episodeId: nextEpisodeId,
+            episodes: widget.episodes,
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<void> epsisodeID_FilterBack() async {
+    String episodeIdString = widget.episodeId.split(RegExp(r'[0-9]'))[0];
+    int episodeIdNumber =
+        int.parse(widget.episodeId.replaceAll(RegExp(r'[^0-9]'), ''));
+    if (episodeIdNumber > 1) {
+      int nextEpisodeIdNumber = episodeIdNumber - 1;
+      String nextEpisodeId = '$episodeIdString$nextEpisodeIdNumber';
+      // Navigate to the next episode
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => EpisodePage(
+            toonId: widget.toonId,
+            episodeId: nextEpisodeId,
+            episodes: widget.episodes,
+          ),
+        ),
+      );
+    } else {}
   }
 
   Future<void> fetchImages() async {
@@ -193,6 +354,46 @@ class _EpisodePageState extends State<EpisodePage> {
                 ],
               ),
             ),
+            SliverToBoxAdapter(
+              key: commentKey,
+              child: Container(
+                margin: EdgeInsets.all(16.0),
+                padding: EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 1,
+                      blurRadius: 3,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      'Comment',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    // ทำการเพิ่มแสดง Comment ด้วย ListView, Column, หรือวิธีที่คุณต้องการ
+                    // ตัวอย่างเช่น:
+                    ListTile(
+                      title: Text('User 1'),
+                      subtitle: Text('This is a comment.'),
+                    ),
+                    ListTile(
+                      title: Text('User 2'),
+                      subtitle: Text('Another comment.'),
+                    ),
+                  ],
+                ),
+              ),
+            )
           ],
         ),
       ),
@@ -208,30 +409,50 @@ class _EpisodePageState extends State<EpisodePage> {
                     Row(
                       children: [
                         IconButton(
-                          icon: Icon(
-                            isFavorite ? Icons.favorite : Icons.favorite_border,
-                            color: Colors.white,
-                            size: 24,
+                          icon: StreamBuilder<bool>(
+                            stream: checkIfUserIsFavoriteStream(
+                                widget.toonId,
+                                widget
+                                    .episodeId), // สร้างฟังก์ชันนี้เพื่อรับ Stream ในการติดตามการกด Favorite
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return CircularProgressIndicator();
+                              } else if (snapshot.hasError) {
+                                return Icon(
+                                  Icons.favorite_border,
+                                  color: Colors.white,
+                                  size: 24,
+                                );
+                              } else {
+                                final isUserFavorite = snapshot.data ?? false;
+                                return Icon(
+                                  isUserFavorite
+                                      ? Icons.favorite
+                                      : Icons.favorite_border,
+                                  color: Colors.white,
+                                  size: 24,
+                                );
+                              }
+                            },
                           ),
                           onPressed: () {
                             setState(() {
                               isFavorite = !isFavorite;
-                              count += isFavorite ? 1 : -1;
                             });
+
+                            updateRatingInFirestore(
+                                widget.toonId, widget.episodeId, isFavorite);
                           },
                         ),
-                        Text(
-                          '$count',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.comment,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                          onPressed: () {
-                            // Handle comment button tap
+                        FutureBuilder<int>(
+                          future: getRatingFromFirestore(
+                              widget.toonId, widget.episodeId),
+                          builder: (context, snapshot) {
+                            return Text(
+                              '${snapshot.data ?? 0}',
+                              style: TextStyle(fontSize: 16),
+                            );
                           },
                         ),
                       ],
@@ -245,7 +466,7 @@ class _EpisodePageState extends State<EpisodePage> {
                             size: 24,
                           ),
                           onPressed: () {
-                            // Handle back button tap
+                            epsisodeID_FilterBack();
                           },
                         ),
                         IconButton(
@@ -255,7 +476,7 @@ class _EpisodePageState extends State<EpisodePage> {
                             size: 24,
                           ),
                           onPressed: () {
-                            // Handle forward button tap
+                            epsisodeID_FilterNext();
                           },
                         ),
                       ],

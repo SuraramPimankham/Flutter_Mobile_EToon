@@ -102,10 +102,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                   child: Text('ตลก'),
                 ),
-                  ElevatedButton(
+                ElevatedButton(
                   onPressed: () {
                     _scrollController.position.ensureVisible(
-                     _buildRomanceKey.currentContext!.findRenderObject()!,
+                      _buildRomanceKey.currentContext!.findRenderObject()!,
                       duration: Duration(milliseconds: 1000),
                       curve: Curves.easeInOut,
                     );
@@ -113,10 +113,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                   child: Text('โรแมนติก'),
                 ),
-                  ElevatedButton(
+                ElevatedButton(
                   onPressed: () {
                     _scrollController.position.ensureVisible(
-                     _buildHorrorKey.currentContext!.findRenderObject()!,
+                      _buildHorrorKey.currentContext!.findRenderObject()!,
                       duration: Duration(milliseconds: 1000),
                       curve: Curves.easeInOut,
                     );
@@ -385,6 +385,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+
   // _buildFantasy
   Widget _buildFantasy(BuildContext context) {
     return Container(
@@ -840,6 +841,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+
   //  _buildRomance
   Widget _buildHorror(BuildContext context) {
     return Container(
@@ -991,6 +993,4 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-
-  
 }

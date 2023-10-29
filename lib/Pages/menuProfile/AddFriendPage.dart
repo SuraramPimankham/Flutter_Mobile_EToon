@@ -1,22 +1,18 @@
 import 'package:flutter/material.dart';
 
-class AddFriendPage extends StatefulWidget {
-  const AddFriendPage({Key? key}) : super(key: key);
+class MyCartoonsPage extends StatefulWidget {
+  const MyCartoonsPage({Key? key}) : super(key: key);
 
   @override
-  State<AddFriendPage> createState() => _AddFriendPageState();
+  State<MyCartoonsPage> createState() => _MyCartoonsPageState();
 }
 
-class _AddFriendPageState extends State<AddFriendPage> {
+class _MyCartoonsPageState extends State<MyCartoonsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Friends'),
-      ),
       body: Center(
-        child:
-            Text('เพิ่มเพื่อนที่นี่2'), // สามารถแทนด้วยเนื้อหาที่คุณต้องการแสดง
+        child: Text('เพื่อน'), // สามารถแทนด้วยเนื้อหาที่คุณต้องการแสดง
       ),
     );
   }

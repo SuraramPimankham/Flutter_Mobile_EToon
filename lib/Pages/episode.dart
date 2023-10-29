@@ -48,6 +48,81 @@ class _EpisodePageState extends State<EpisodePage> {
     fetchImages();
   }
 
+  Future<int> getRatingFromFirestore(String toonId, String episodeId) async {
+    try {
+      final episodeRef = FirebaseFirestore.instance.collection(toonId).doc(episodeId);
+
+      final document = await episodeRef.get();
+      if (document.exists) {
+        final rating = document.data()?['rating'] as int;
+        return rating ?? 0;
+      }
+      return 0; // ถ้าไม่มีเอกสารหรือไม่มีฟิล "rating"
+    } catch (e) {
+      print('Error fetching rating from Firestore: $e');
+      return 0; // ในกรณีที่เกิดข้อผิดพลาด
+    }
+  }
+
+  Stream<bool> checkIfUserIsFavoriteStream(String toonId, String episodeId) {
+    // สร้างและคืนค่า Stream จาก Firestore ที่ติดตาม user_favorite ของเอกสารนี้
+    return FirebaseFirestore.instance
+        .collection(toonId)
+        .doc(episodeId)
+        .snapshots()
+        .map((snapshot) {
+      if (snapshot.exists) {
+        final userFavorite = snapshot.data()?['user_favorite'] as List;
+        final userUid = FirebaseAuth.instance.currentUser?.uid;
+        return userUid != null && userFavorite.contains(userUid);
+      }
+      return false; // ถ้าไม่มีเอกสารหรือไม่มีฟิล "user_favorite"
+    });
+  }
+
+  Future<void> updateRatingInFirestore(
+      String toonId, String episodeId, bool isFavorite) async {
+    try {
+      final uid_user = _user?.uid;
+
+      // อ้างอิงไปยังเอกสารใน Firestore
+      final episodeRef =
+          FirebaseFirestore.instance.collection(toonId).doc(episodeId);
+
+      final document = await episodeRef.get();
+
+      if (document.exists) {
+        // ตรวจสอบว่าฟิล "user_favorite" มีอยู่ในเอกสารหรือไม่
+        final userFavoriteExists =
+            document.data()!.containsKey('user_favorite');
+
+        // ตรวจสอบว่า UID ของผู้ใช้อยู่ในฟิล "user_favorite" หรือไม่
+        final userFavorite = userFavoriteExists
+            ? (document.data()!['user_favorite'] as List)
+            : [];
+
+        if (uid_user != null) {
+          if (userFavorite.contains(uid_user)) {
+            // UID ของผู้ใช้อยู่ใน "user_favorite", ดังนั้นลดคะแนน (-1) และลบ UID ออกจาก "user_favorite"
+            await episodeRef.update({
+              'rating': FieldValue.increment(-1),
+              'user_favorite': FieldValue.arrayRemove([uid_user])
+            });
+          } else {
+            // UID ของผู้ใช้ไม่อยู่ใน "user_favorite", ดังนั้นเพิ่มคะแนน (+1) และเพิ่ม UID เข้าไปใน "user_favorite"
+            await episodeRef.update({
+              'rating': FieldValue.increment(1),
+              'user_favorite': FieldValue.arrayUnion([uid_user])
+            });
+          }
+        }
+      }
+    } catch (e) {
+      print(
+          'เกิดข้อผิดพลาดในการอัปเดต rating และ user_favorite ใน Firestore: $e');
+    }
+  }
+
   Future<void> epsisodeID_FilterNext() async {
     String episodeIdString = widget.episodeId.split(RegExp(r'[0-9]'))[0];
     int episodeIdNumber =
@@ -66,8 +141,6 @@ class _EpisodePageState extends State<EpisodePage> {
       int episodeNumber = int.parse(episode.split(' ')[1]);
       return episodeNumber == episodeIdNumber;
     });
-    print(_user);
-
     if (_user == null &&
         episodeIdNumber > 0 &&
         episodeIdNumber <= 2 &&
@@ -91,6 +164,16 @@ class _EpisodePageState extends State<EpisodePage> {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => MyProfile(),
+        ),
+      );
+    } else {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => EpisodePage(
+            toonId: widget.toonId,
+            episodeId: nextEpisodeId,
+            episodes: widget.episodes,
+          ),
         ),
       );
     }
@@ -325,21 +408,51 @@ class _EpisodePageState extends State<EpisodePage> {
                     Row(
                       children: [
                         IconButton(
-                          icon: Icon(
-                            isFavorite ? Icons.favorite : Icons.favorite_border,
-                            color: Colors.white,
-                            size: 24,
+                          icon: StreamBuilder<bool>(
+                            stream: checkIfUserIsFavoriteStream(
+                                widget.toonId,
+                                widget
+                                    .episodeId), // สร้างฟังก์ชันนี้เพื่อรับ Stream ในการติดตามการกด Favorite
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return CircularProgressIndicator();
+                              } else if (snapshot.hasError) {
+                                return Icon(
+                                  Icons.favorite_border,
+                                  color: Colors.white,
+                                  size: 24,
+                                );
+                              } else {
+                                final isUserFavorite = snapshot.data ?? false;
+                                return Icon(
+                                  isUserFavorite
+                                      ? Icons.favorite
+                                      : Icons.favorite_border,
+                                  color: Colors.white,
+                                  size: 24,
+                                );
+                              }
+                            },
                           ),
                           onPressed: () {
                             setState(() {
                               isFavorite = !isFavorite;
-                              count += isFavorite ? 1 : -1;
                             });
+
+                            updateRatingInFirestore(
+                                widget.toonId, widget.episodeId, isFavorite);
                           },
                         ),
-                        Text(
-                          '$count',
-                          style: TextStyle(fontSize: 16),
+                        FutureBuilder<int>(
+                          future: getRatingFromFirestore(
+                              widget.toonId, widget.episodeId),
+                          builder: (context, snapshot) {
+                            return Text(
+                              '${snapshot.data ?? 0}',
+                              style: TextStyle(fontSize: 16),
+                            );
+                          },
                         ),
                       ],
                     ),
