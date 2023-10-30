@@ -34,7 +34,6 @@ class _DetailPageState extends State<DetailPage> {
   bool isPressed = false;
   int count = 0;
 
-
   @override
   void initState() {
     super.initState();
@@ -45,7 +44,7 @@ class _DetailPageState extends State<DetailPage> {
 
   Stream<int> fetchRating(String episodeId) {
     final episodeRef =
-      FirebaseFirestore.instance.collection(widget.id).doc(episodeId);
+        FirebaseFirestore.instance.collection(widget.id).doc(episodeId);
 
     return episodeRef.snapshots().map((document) {
       if (document.exists) {
@@ -63,7 +62,6 @@ class _DetailPageState extends State<DetailPage> {
       return 0; // จัดการข้อผิดพลาดโดยการให้ค่าเริ่มต้น 0
     });
   }
-
 
   Future<void> checkUserLoginStatus(bool isLocked, String episodeId) async {
     // ตรวจสอบว่าผู้ใช้ล็อกอินอยู่หรือไม่
@@ -216,12 +214,9 @@ class _DetailPageState extends State<DetailPage> {
                                 ),
                               ],
                             ),
-                            
-                            
-                           Row(
+                            Row(
                               children: [
                                 IconButton(
-                                  
                                   icon: Icon(
                                     isPressed
                                         ? Icons.favorite
@@ -249,7 +244,6 @@ class _DetailPageState extends State<DetailPage> {
                                 ),
                               ],
                             ),
-
                           ],
                         ),
                       ),
@@ -479,7 +473,7 @@ class _DetailPageState extends State<DetailPage> {
                                     children: [
                                       Icon(Icons.favorite, color: Colors.white),
                                       //  แสดง data
-                                    StreamBuilder<int>(
+                                      StreamBuilder<int>(
                                         stream:
                                             fetchRating(episodeIds[entry.key]),
                                         builder: (context, snapshot) {
@@ -497,8 +491,6 @@ class _DetailPageState extends State<DetailPage> {
                                           }
                                         },
                                       )
-
-
                                     ],
                                   ),
                                 ],
