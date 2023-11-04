@@ -21,6 +21,24 @@ class _MyHomePageState extends State<MyHomePage> {
   GlobalKey _buildRomanceKey = GlobalKey();
   GlobalKey _buildHorrorKey = GlobalKey();
 
+// เรียกค่า rating จาก firebase
+  Future<int> fetchRatingEP(String storyId) async {
+    try {
+      final storyRef =
+          FirebaseFirestore.instance.collection("storys").doc(storyId);
+
+      final document = await storyRef.get();
+      if (document.exists) {
+        final rating = document.data()?['rating'] as int;
+        return rating ?? 0;
+      }
+      return 0; // คืนค่าเริ่มต้นถ้าเอกสารไม่มีหรือไม่มีข้อมูลคะแนน
+    } catch (e) {
+      print('เกิดข้อผิดพลาดในการดึงคะแนนจาก Firestore: $e');
+      return 0; // จัดการข้อผิดพลาดและคืนค่าเริ่มต้น
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -259,7 +277,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           Container(
             height: 230,
-            child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+            child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('storys')
                   .where('categories', arrayContains: 'action')
@@ -295,87 +313,95 @@ class _MyHomePageState extends State<MyHomePage> {
                     final imageUrl = data['imageUrl'];
                     final description = data['description'];
 
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DetailPage(
-                              id: id,
-                              author: author,
-                              title: title,
-                              imageUrl: imageUrl,
-                              description: description,
-                            ),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        width: 150,
-                        height: 120,
-                        child: Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(4),
-                            child: Column(
-                              children: [
-                                Container(
-                                  height: 150,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      ClipRRect(
-                                        borderRadius:
-                                            BorderRadius.circular(8.0),
-                                        child: Image.network(
-                                          imageUrl,
-                                          width: 130,
-                                          height: 150,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                    ],
+                    return FutureBuilder<int>(
+                        future: fetchRatingEP(id), // ดึงคะแนนจาก Firestore
+                        builder: (context, ratingSanpshot) {
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailPage(
+                                    id: id,
+                                    author: author,
+                                    title: title,
+                                    imageUrl: imageUrl,
+                                    description: description,
                                   ),
                                 ),
-                                Padding(
-                                  padding: EdgeInsets.all(8.0),
+                              );
+                            },
+                            child: Container(
+                              width: 150,
+                              height: 120,
+                              child: Card(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(4),
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
                                     children: [
                                       Container(
-                                        width: double.infinity,
-                                        child: Text(
-                                          '$title',
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
+                                        height: 150,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                              child: Image.network(
+                                                imageUrl,
+                                                width: 130,
+                                                height: 150,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          ],
                                         ),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              width: double.infinity,
+                                              child: Text(
+                                                '$title',
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Icon(Icons.favorite),
+                                              Text(
+                                                (ratingSanpshot.data ?? 0)
+                                                    .toString(), // แสดงคะแนนจาก Firestore
+                                                style: TextStyle(fontSize: 14),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
                                 ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Icon(Icons.remove_red_eye),
-                                        Text("120"),
-                                        Icon(Icons.favorite),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
-                      ),
-                    );
+                          );
+                        });
                   },
                 );
               },
@@ -447,87 +473,95 @@ class _MyHomePageState extends State<MyHomePage> {
                     final imageUrl = data['imageUrl'];
                     final description = data['description'];
 
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DetailPage(
-                              id: id,
-                              author: author,
-                              title: title,
-                              imageUrl: imageUrl,
-                              description: description,
-                            ),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        width: 150,
-                        height: 120,
-                        child: Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(4),
-                            child: Column(
-                              children: [
-                                Container(
-                                  height: 150,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      ClipRRect(
-                                        borderRadius:
-                                            BorderRadius.circular(8.0),
-                                        child: Image.network(
-                                          imageUrl,
-                                          width: 130,
-                                          height: 150,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                    ],
+                    return FutureBuilder<int>(
+                        future: fetchRatingEP(id), // ดึงคะแนนจาก Firestore
+                        builder: (context, ratingSnapshot) {
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailPage(
+                                    id: id,
+                                    author: author,
+                                    title: title,
+                                    imageUrl: imageUrl,
+                                    description: description,
                                   ),
                                 ),
-                                Padding(
-                                  padding: EdgeInsets.all(8.0),
+                              );
+                            },
+                            child: Container(
+                              width: 150,
+                              height: 120,
+                              child: Card(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(4),
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
                                     children: [
                                       Container(
-                                        width: double.infinity,
-                                        child: Text(
-                                          '$title',
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
+                                        height: 150,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                              child: Image.network(
+                                                imageUrl,
+                                                width: 130,
+                                                height: 150,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          ],
                                         ),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              width: double.infinity,
+                                              child: Text(
+                                                '$title',
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Icon(Icons.remove_red_eye),
+                                              Text(
+                                                (ratingSnapshot.data ?? 0)
+                                                    .toString(), // แสดงคะแนนจาก Firestore
+                                                style: TextStyle(fontSize: 14),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
                                 ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Icon(Icons.remove_red_eye),
-                                        Text("120"),
-                                        Icon(Icons.favorite),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
-                      ),
-                    );
+                          );
+                        });
                   },
                 );
               },
@@ -599,87 +633,95 @@ class _MyHomePageState extends State<MyHomePage> {
                     final imageUrl = data['imageUrl'];
                     final description = data['description'];
 
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DetailPage(
-                              id: id,
-                              author: author,
-                              title: title,
-                              imageUrl: imageUrl,
-                              description: description,
-                            ),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        width: 150,
-                        height: 120,
-                        child: Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(4),
-                            child: Column(
-                              children: [
-                                Container(
-                                  height: 150,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      ClipRRect(
-                                        borderRadius:
-                                            BorderRadius.circular(8.0),
-                                        child: Image.network(
-                                          imageUrl,
-                                          width: 130,
-                                          height: 150,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                    ],
+                    return FutureBuilder<int>(
+                        future: fetchRatingEP(id), // ดึงคะแนนจาก Firestore
+                        builder: (context, ratingSnapshot) {
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailPage(
+                                    id: id,
+                                    author: author,
+                                    title: title,
+                                    imageUrl: imageUrl,
+                                    description: description,
                                   ),
                                 ),
-                                Padding(
-                                  padding: EdgeInsets.all(8.0),
+                              );
+                            },
+                            child: Container(
+                              width: 150,
+                              height: 120,
+                              child: Card(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(4),
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
                                     children: [
                                       Container(
-                                        width: double.infinity,
-                                        child: Text(
-                                          '$title',
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
+                                        height: 150,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                              child: Image.network(
+                                                imageUrl,
+                                                width: 130,
+                                                height: 150,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          ],
                                         ),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              width: double.infinity,
+                                              child: Text(
+                                                '$title',
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Icon(Icons.remove_red_eye),
+                                              Text(
+                                                (ratingSnapshot.data ?? 0)
+                                                    .toString(), // แสดงคะแนนจาก Firestore
+                                                style: TextStyle(fontSize: 14),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
                                 ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Icon(Icons.remove_red_eye),
-                                        Text("120"),
-                                        Icon(Icons.favorite),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
-                      ),
-                    );
+                          );
+                        });
                   },
                 );
               },
@@ -751,87 +793,95 @@ class _MyHomePageState extends State<MyHomePage> {
                     final imageUrl = data['imageUrl'];
                     final description = data['description'];
 
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DetailPage(
-                              id: id,
-                              author: author,
-                              title: title,
-                              imageUrl: imageUrl,
-                              description: description,
-                            ),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        width: 150,
-                        height: 120,
-                        child: Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(4),
-                            child: Column(
-                              children: [
-                                Container(
-                                  height: 150,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      ClipRRect(
-                                        borderRadius:
-                                            BorderRadius.circular(8.0),
-                                        child: Image.network(
-                                          imageUrl,
-                                          width: 130,
-                                          height: 150,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                    ],
+                    return FutureBuilder<int>(
+                        future: fetchRatingEP(id), // ดึงคะแนนจาก Firestore
+                        builder: (context, ratingSnapshot) {
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailPage(
+                                    id: id,
+                                    author: author,
+                                    title: title,
+                                    imageUrl: imageUrl,
+                                    description: description,
                                   ),
                                 ),
-                                Padding(
-                                  padding: EdgeInsets.all(8.0),
+                              );
+                            },
+                            child: Container(
+                              width: 150,
+                              height: 120,
+                              child: Card(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(4),
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
                                     children: [
                                       Container(
-                                        width: double.infinity,
-                                        child: Text(
-                                          '$title',
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
+                                        height: 150,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                              child: Image.network(
+                                                imageUrl,
+                                                width: 130,
+                                                height: 150,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          ],
                                         ),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              width: double.infinity,
+                                              child: Text(
+                                                '$title',
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Icon(Icons.remove_red_eye),
+                                              Text(
+                                                (ratingSnapshot.data ?? 0)
+                                                    .toString(), // แสดงคะแนนจาก Firestore
+                                                style: TextStyle(fontSize: 14),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
                                 ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Icon(Icons.remove_red_eye),
-                                        Text("120"),
-                                        Icon(Icons.favorite),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
-                      ),
-                    );
+                          );
+                        });
                   },
                 );
               },
@@ -903,87 +953,95 @@ class _MyHomePageState extends State<MyHomePage> {
                     final imageUrl = data['imageUrl'];
                     final description = data['description'];
 
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DetailPage(
-                              id: id,
-                              author: author,
-                              title: title,
-                              imageUrl: imageUrl,
-                              description: description,
-                            ),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        width: 150,
-                        height: 120,
-                        child: Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(4),
-                            child: Column(
-                              children: [
-                                Container(
-                                  height: 150,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      ClipRRect(
-                                        borderRadius:
-                                            BorderRadius.circular(8.0),
-                                        child: Image.network(
-                                          imageUrl,
-                                          width: 130,
-                                          height: 150,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                    ],
+                    return FutureBuilder<int>(
+                        future: fetchRatingEP(id), // ดึงคะแนนจาก Firestore
+                        builder: (context, ratingSnapshot) {
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailPage(
+                                    id: id,
+                                    author: author,
+                                    title: title,
+                                    imageUrl: imageUrl,
+                                    description: description,
                                   ),
                                 ),
-                                Padding(
-                                  padding: EdgeInsets.all(8.0),
+                              );
+                            },
+                            child: Container(
+                              width: 150,
+                              height: 120,
+                              child: Card(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(4),
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
                                     children: [
                                       Container(
-                                        width: double.infinity,
-                                        child: Text(
-                                          '$title',
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
+                                        height: 150,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                              child: Image.network(
+                                                imageUrl,
+                                                width: 130,
+                                                height: 150,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          ],
                                         ),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              width: double.infinity,
+                                              child: Text(
+                                                '$title',
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Icon(Icons.remove_red_eye),
+                                              Text(
+                                                (ratingSnapshot.data ?? 0)
+                                                    .toString(), // แสดงคะแนนจาก Firestore
+                                                style: TextStyle(fontSize: 14),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
                                 ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Icon(Icons.remove_red_eye),
-                                        Text("120"),
-                                        Icon(Icons.favorite),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
-                      ),
-                    );
+                          );
+                        });
                   },
                 );
               },

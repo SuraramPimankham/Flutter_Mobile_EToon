@@ -24,6 +24,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_advanced_networkimage_2: ^2.0.1
+  flutter_dialogs: ^3.0.0
   flutter_image_slider: ^0.0.2
   flutter_login: ^4.2.1
   flutter_login_facebook: ^1.8.0

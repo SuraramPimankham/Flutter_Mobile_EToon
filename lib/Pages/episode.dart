@@ -64,6 +64,8 @@ class _EpisodePageState extends State<EpisodePage> {
     }
   }
 
+  // storyrating
+
   Stream<bool> checkIfUserIsFavoriteStream(String toonId, String episodeId) {
     // สร้างและคืนค่า Stream จาก Firestore ที่ติดตาม user_favorite ของเอกสารนี้
     return FirebaseFirestore.instance
