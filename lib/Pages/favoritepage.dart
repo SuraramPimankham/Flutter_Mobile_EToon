@@ -10,35 +10,40 @@ class MyFavoritePage extends StatefulWidget {
 }
 
 class _MyFavoritePageState extends State<MyFavoritePage> {
-  String activeGenre =
-      'แอ็กชัน'; // กำหนดค่าเริ่มต้นให้ activeGenre เป็น 'แอ็กชัน'
+  String activeButton = 'action'; // เริ่มต้นด้วยหมวดหมู่ 'action'
+  Map<String, String> categoryMap = {
+    'action': 'action',
+    'comedy': 'comedy',
+    'fantasy': 'fantasy',
+    'horror': 'horror',
+    'romance': 'romance',
+  };
 
-  final FirebaseFirestore firestore =
-      FirebaseFirestore.instance; // Firestore instance
-  List<Map<String, dynamic>> favoriteData = [];
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  List<Map<String, dynamic>> storyData = [];
 
   @override
   void initState() {
     super.initState();
-    fetchFavoriteData(
-        activeGenre); // เรียกใช้งาน fetchFavoriteData เมื่อเริ่มต้น
+    fetchStoryData(activeButton); // เรียกดึงข้อมูลสำหรับ activeButton เริ่มต้น
   }
 
-  Future<void> fetchFavoriteData(String genre) async {
+  Future<void> fetchStoryData(String? category) async {
     try {
       final QuerySnapshot querySnapshot = await firestore
-          .collection('favorite_stories')
-          .where('genre', isEqualTo: genre)
+          .collection('stories')
+          .where('category', isEqualTo: category) // ค้นหาตามหมวดหมู่
+          .where('favorite', isEqualTo: true)
           .get();
 
       if (querySnapshot.docs.isNotEmpty) {
         setState(() {
-          favoriteData.clear(); // ล้างข้อมูล favoriteData ที่มีอยู่
+          storyData.clear();
         });
 
         querySnapshot.docs.forEach((doc) {
-          favoriteData.add({
-            'id': doc['id'],
+          storyData.add({
+            'id': doc.id,
             'author': doc['author'],
             'title': doc['title'],
             'imageUrl': doc['imageUrl'],
@@ -47,11 +52,11 @@ class _MyFavoritePageState extends State<MyFavoritePage> {
         });
       } else {
         setState(() {
-          favoriteData.clear(); // ล้างข้อมูล favoriteData ในกรณีที่ไม่มีข้อมูล
+          storyData.clear();
         });
       }
     } catch (e) {
-      print('Error fetching data: $e');
+      print('เกิดข้อผิดพลาดในการดึงข้อมูล: $e');
     }
   }
 
@@ -59,97 +64,123 @@ class _MyFavoritePageState extends State<MyFavoritePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('รายการถูกใจ'),
+        title: Text('รายการที่มีการถูกใจ'),
       ),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(10.0),
-          // ส่วนหมวดหมู่
           child: Column(
             children: [
-              // ส่วนของปุ่มหมวดหมู่
               Container(
                 color: Colors.white,
                 padding: EdgeInsets.all(20.0),
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  child: Row(     
                     children: [
-                      _buildGenreButton('แอ็กชัน', activeGenre == 'แอ็กชัน'),
-                      _buildGenreButton('โรแมนติก', activeGenre == 'โรแมนติก'),
-                      _buildGenreButton('ตลก', activeGenre == 'ตลก'),
-                      _buildGenreButton('แฟนตาซี', activeGenre == 'แฟนตาซี'),
-                      _buildGenreButton('สยองขวัญ', activeGenre == 'สยองขวัญ'),
+                      Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: _buildButton('action', activeButton == 'action'),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: _buildButton('comedy', activeButton == 'comedy'),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: _buildButton('fantasy', activeButton == 'fantasy'),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: _buildButton('horror', activeButton == 'horror'),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: _buildButton('romance', activeButton == 'romance'),
+                      ),
                     ],
                   ),
                 ),
               ),
-              // ส่วนแสดงรายการเรื่อง
-              ListView(
-                shrinkWrap: true,
-                physics: ClampingScrollPhysics(),
-                children: favoriteData.map((data) {
-                  return GestureDetector(
-                    onTap: () {
-                      print('ID: ${data['id']}');
-                      print('Author: ${data['author']}');
-                      print('Title: ${data['title']}');
-                      print('ImageUrl: ${data['imageUrl']}');
-                      print('Description: ${data['description']}');
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DetailPage(
-                            id: data['id'],
-                            author: data['author'],
-                            title: data['title'],
-                            imageUrl: data['imageUrl'],
-                            description: data['description'],
-                          ),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      width: (MediaQuery.of(context).size.width - 40) / 3,
-                      height: 200,
-                      child: Align(
-                        alignment: Alignment.center,
-                        child: Card(
-                          elevation: 1,
-                          child: Padding(
-                            padding: const EdgeInsets.all(5.0),
-                            child: Column(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  child: Image.network(
-                                    data['imageUrl'],
-                                    fit: BoxFit.cover,
-                                    height: 140,
-                                    width: 100,
+              Container(
+                margin: EdgeInsets.only(top: 5),
+                padding: EdgeInsets.all(5),
+                color: Colors.white,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Container(
+                      constraints: BoxConstraints(minHeight: 600),
+                      child: Wrap(
+                        spacing: 2,
+                        runSpacing: 2,
+                        children: storyData.map((data) {
+                          return GestureDetector(
+                            onTap: () {
+                              print('ID: ${data['id']}');
+                              print('Author: ${data['author']}');
+                              print('Title: ${data['title']}');
+                              print('ImageUrl: ${data['imageUrl']}');
+                              print('Description: ${data['description']}');
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailPage(
+                                    id: data['id'],
+                                    author: data['author'],
+                                    title: data['title'],
+                                    imageUrl: data['imageUrl'],
+                                    description: data['description'],
                                   ),
                                 ),
-                                SizedBox(height: 8),
-                                FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(
-                                    data['title'],
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
+                              );
+                            },
+                            child: Container(
+                              width:
+                                  (MediaQuery.of(context).size.width - 40) / 3,
+                              height: 200,
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: Card(
+                                  elevation: 1,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(5.0),
+                                    child: Column(
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(8.0),
+                                          child: Image.network(
+                                            data['imageUrl'],
+                                            fit: BoxFit.cover,
+                                            height: 140,
+                                            width: 100,
+                                          ),
+                                        ),
+                                        SizedBox(height: 8),
+                                        FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          child: Text(
+                                            data['title'],
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
+                          );
+                        }).toList(),
                       ),
                     ),
-                  );
-                }).toList(),
+                  ],
+                ),
               ),
             ],
           ),
@@ -158,18 +189,18 @@ class _MyFavoritePageState extends State<MyFavoritePage> {
     );
   }
 
-  Widget _buildGenreButton(String text, bool isActive) {
+  Widget _buildButton(String text, bool isActive) {
     return GestureDetector(
       onTap: () {
         setState(() {
-          activeGenre = text;
-          fetchFavoriteData(
-              text); // เรียกใช้งาน fetchFavoriteData เมื่อเลือกหมวดหมู่
+          activeButton = text;
+          fetchStoryData(categoryMap[text]);
         });
       },
       child: Container(
         width: 90,
         height: 45,
+        padding: EdgeInsets.all(10.0),
         decoration: BoxDecoration(
           color:
               isActive ? Colors.pink : const Color.fromARGB(255, 237, 123, 161),
@@ -180,7 +211,7 @@ class _MyFavoritePageState extends State<MyFavoritePage> {
             text,
             style: TextStyle(
               color: Colors.white,
-              fontSize: 16,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),

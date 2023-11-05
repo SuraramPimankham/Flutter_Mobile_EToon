@@ -52,11 +52,11 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             _buildCategoryButtons(context),
             _buildRecommendedStories(context),
-            // _buildAction(context),
-            // _buildFantasy(context),
-            // _buildComedy(context),
-            // _buildRomance(context),
-            // _buildHorror(context),
+            _buildAction(context),
+            _buildFantasy(context),
+            _buildComedy(context),
+            _buildRomance(context),
+            _buildHorror(context),
           ],
         ),
       ),
@@ -151,7 +151,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
 //  แนะนำ
-  // แนะนำ
   Widget _buildRecommendedStories(BuildContext context) {
     return Container(
       width: 400,
@@ -175,8 +174,9 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           Container(
             height: 250,
-            child: FutureBuilder<List<DocumentSnapshot>>(
-              future: _fetchRecommendedStories(), // ดึงข้อมูลแนะนำ
+            child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+              stream:
+                  FirebaseFirestore.instance.collection('storys').snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
@@ -188,8 +188,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: Text('เกิดข้อผิดพลาด: ${snapshot.error.toString()}'),
                   );
                 }
-                final documents = snapshot.data;
-
+                final documents = snapshot.data?.docs;
                 if (documents == null || documents.isEmpty) {
                   return Center(
                     child: Text('ไม่พบข้อมูลในคอลเลกชัน "storys"'),
@@ -253,33 +252,803 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+// _buildAction
+  Widget _buildAction(BuildContext context) {
+    return Container(
+      key: _buildActionKey,
+      width: 400,
+      height: 338,
+      color: Color.fromARGB(255, 241, 129, 166),
+      margin: EdgeInsets.all(10),
+      padding: EdgeInsets.all(20),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'แอ็กชัน',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                ),
+              ),
+            ],
+          ),
+          Container(
+            height: 230,
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('storys')
+                  .where('categories', arrayContains: 'action')
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text('เกิดข้อผิดพลาด: ${snapshot.error.toString()}'),
+                  );
+                }
+                final documents = snapshot.data?.docs;
+                if (documents == null || documents.isEmpty) {
+                  return Center(
+                    child: Text('ไม่พบข้อมูลในคอลเลกชัน "storys"'),
+                  );
+                }
 
-  Future<List<DocumentSnapshot>> _fetchRecommendedStories() async {
-    final List<String> categories = [
-      'Action',
-      'Fantasy',
-      'Comedy',
-      'Horror',
-      'Romance'
-    ];
-    final List<DocumentSnapshot> recommendedStories = [];
+                return ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: documents.length,
+                  itemBuilder: (context, index) {
+                    final document = documents[index];
+                    final data = document.data() as Map<String, dynamic>;
 
-    for (String category in categories) {
-      final querySnapshot = await FirebaseFirestore.instance
-          .collection('storys')
-          .where('categories', arrayContains: category)
-          .orderBy('rating', descending: true)
-          .limit(1)
-          .get();
+                    final id = data['id'];
+                    final author = data['author'];
+                    final title = data['title'];
+                    final imageUrl = data['imageUrl'];
+                    final description = data['description'];
 
-      if (querySnapshot.docs.isNotEmpty) {
-        recommendedStories.add(querySnapshot.docs[0]);
-      }
-    }
-
-    return recommendedStories;
+                    return FutureBuilder<int>(
+                        future: fetchRatingEP(id), // ดึงคะแนนจาก Firestore
+                        builder: (context, ratingSanpshot) {
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailPage(
+                                    id: id,
+                                    author: author,
+                                    title: title,
+                                    imageUrl: imageUrl,
+                                    description: description,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              width: 150,
+                              height: 120,
+                              child: Card(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(4),
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        height: 150,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                              child: Image.network(
+                                                imageUrl,
+                                                width: 130,
+                                                height: 150,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              width: double.infinity,
+                                              child: Text(
+                                                '$title',
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Icon(Icons.favorite),
+                                              Text(
+                                                (ratingSanpshot.data ?? 0)
+                                                    .toString(), // แสดงคะแนนจาก Firestore
+                                                style: TextStyle(fontSize: 14),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        });
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
+  // _buildFantasy
+  Widget _buildFantasy(BuildContext context) {
+    return Container(
+      key: _buildFantasyKey,
+      width: 400,
+      height: 338,
+      color: Color.fromARGB(255, 241, 129, 166),
+      margin: EdgeInsets.all(10),
+      padding: EdgeInsets.all(20),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'แฟนตาซี',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                ),
+              ),
+            ],
+          ),
+          Container(
+            height: 230,
+            child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+              stream: FirebaseFirestore.instance
+                  .collection('storys')
+                  .where('categories', arrayContains: 'fantasy')
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text('เกิดข้อผิดพลาด: ${snapshot.error.toString()}'),
+                  );
+                }
+                final documents = snapshot.data?.docs;
+                if (documents == null || documents.isEmpty) {
+                  return Center(
+                    child: Text('ไม่พบข้อมูลในคอลเลกชัน "storys"'),
+                  );
+                }
 
+                return ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: documents.length,
+                  itemBuilder: (context, index) {
+                    final document = documents[index];
+                    final data = document.data() as Map<String, dynamic>;
 
+                    final id = data['id'];
+                    final author = data['author'];
+                    final title = data['title'];
+                    final imageUrl = data['imageUrl'];
+                    final description = data['description'];
+
+                    return FutureBuilder<int>(
+                        future: fetchRatingEP(id), // ดึงคะแนนจาก Firestore
+                        builder: (context, ratingSnapshot) {
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailPage(
+                                    id: id,
+                                    author: author,
+                                    title: title,
+                                    imageUrl: imageUrl,
+                                    description: description,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              width: 150,
+                              height: 120,
+                              child: Card(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(4),
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        height: 150,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                              child: Image.network(
+                                                imageUrl,
+                                                width: 130,
+                                                height: 150,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              width: double.infinity,
+                                              child: Text(
+                                                '$title',
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Icon(Icons.remove_red_eye),
+                                              Text(
+                                                (ratingSnapshot.data ?? 0)
+                                                    .toString(), // แสดงคะแนนจาก Firestore
+                                                style: TextStyle(fontSize: 14),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        });
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  //  _buildComedy
+  Widget _buildComedy(BuildContext context) {
+    return Container(
+      key: _buildComedyKey,
+      width: 400,
+      height: 338,
+      color: Color.fromARGB(255, 241, 129, 166),
+      margin: EdgeInsets.all(10),
+      padding: EdgeInsets.all(20),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'ตลก',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                ),
+              ),
+            ],
+          ),
+          Container(
+            height: 230,
+            child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+              stream: FirebaseFirestore.instance
+                  .collection('storys')
+                  .where('categories', arrayContains: 'comedy')
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text('เกิดข้อผิดพลาด: ${snapshot.error.toString()}'),
+                  );
+                }
+                final documents = snapshot.data?.docs;
+                if (documents == null || documents.isEmpty) {
+                  return Center(
+                    child: Text('ไม่พบข้อมูลในคอลเลกชัน "storys"'),
+                  );
+                }
+
+                return ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: documents.length,
+                  itemBuilder: (context, index) {
+                    final document = documents[index];
+                    final data = document.data() as Map<String, dynamic>;
+
+                    final id = data['id'];
+                    final author = data['author'];
+                    final title = data['title'];
+                    final imageUrl = data['imageUrl'];
+                    final description = data['description'];
+
+                    return FutureBuilder<int>(
+                        future: fetchRatingEP(id), // ดึงคะแนนจาก Firestore
+                        builder: (context, ratingSnapshot) {
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailPage(
+                                    id: id,
+                                    author: author,
+                                    title: title,
+                                    imageUrl: imageUrl,
+                                    description: description,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              width: 150,
+                              height: 120,
+                              child: Card(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(4),
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        height: 150,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                              child: Image.network(
+                                                imageUrl,
+                                                width: 130,
+                                                height: 150,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              width: double.infinity,
+                                              child: Text(
+                                                '$title',
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Icon(Icons.remove_red_eye),
+                                              Text(
+                                                (ratingSnapshot.data ?? 0)
+                                                    .toString(), // แสดงคะแนนจาก Firestore
+                                                style: TextStyle(fontSize: 14),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        });
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  //  _buildRomance
+  Widget _buildRomance(BuildContext context) {
+    return Container(
+      key: _buildRomanceKey,
+      width: 400,
+      height: 338,
+      color: Color.fromARGB(255, 241, 129, 166),
+      margin: EdgeInsets.all(10),
+      padding: EdgeInsets.all(20),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'โรแมนติก',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                ),
+              ),
+            ],
+          ),
+          Container(
+            height: 230,
+            child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+              stream: FirebaseFirestore.instance
+                  .collection('storys')
+                  .where('categories', arrayContains: 'romance')
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text('เกิดข้อผิดพลาด: ${snapshot.error.toString()}'),
+                  );
+                }
+                final documents = snapshot.data?.docs;
+                if (documents == null || documents.isEmpty) {
+                  return Center(
+                    child: Text('ไม่พบข้อมูลในคอลเลกชัน "storys"'),
+                  );
+                }
+
+                return ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: documents.length,
+                  itemBuilder: (context, index) {
+                    final document = documents[index];
+                    final data = document.data() as Map<String, dynamic>;
+
+                    final id = data['id'];
+                    final author = data['author'];
+                    final title = data['title'];
+                    final imageUrl = data['imageUrl'];
+                    final description = data['description'];
+
+                    return FutureBuilder<int>(
+                        future: fetchRatingEP(id), // ดึงคะแนนจาก Firestore
+                        builder: (context, ratingSnapshot) {
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailPage(
+                                    id: id,
+                                    author: author,
+                                    title: title,
+                                    imageUrl: imageUrl,
+                                    description: description,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              width: 150,
+                              height: 120,
+                              child: Card(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(4),
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        height: 150,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                              child: Image.network(
+                                                imageUrl,
+                                                width: 130,
+                                                height: 150,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              width: double.infinity,
+                                              child: Text(
+                                                '$title',
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Icon(Icons.remove_red_eye),
+                                              Text(
+                                                (ratingSnapshot.data ?? 0)
+                                                    .toString(), // แสดงคะแนนจาก Firestore
+                                                style: TextStyle(fontSize: 14),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        });
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  //  _buildRomance
+  Widget _buildHorror(BuildContext context) {
+    return Container(
+      key: _buildHorrorKey,
+      width: 400,
+      height: 338,
+      color: Color.fromARGB(255, 241, 129, 166),
+      margin: EdgeInsets.all(10),
+      padding: EdgeInsets.all(20),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'สยองขวัญ',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                ),
+              ),
+            ],
+          ),
+          Container(
+            height: 230,
+            child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+              stream: FirebaseFirestore.instance
+                  .collection('storys')
+                  .where('categories', arrayContains: 'horror')
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text('เกิดข้อผิดพลาด: ${snapshot.error.toString()}'),
+                  );
+                }
+                final documents = snapshot.data?.docs;
+                if (documents == null || documents.isEmpty) {
+                  return Center(
+                    child: Text('ไม่พบข้อมูลในคอลเลกชัน "storys"'),
+                  );
+                }
+
+                return ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: documents.length,
+                  itemBuilder: (context, index) {
+                    final document = documents[index];
+                    final data = document.data() as Map<String, dynamic>;
+
+                    final id = data['id'];
+                    final author = data['author'];
+                    final title = data['title'];
+                    final imageUrl = data['imageUrl'];
+                    final description = data['description'];
+
+                    return FutureBuilder<int>(
+                        future: fetchRatingEP(id), // ดึงคะแนนจาก Firestore
+                        builder: (context, ratingSnapshot) {
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailPage(
+                                    id: id,
+                                    author: author,
+                                    title: title,
+                                    imageUrl: imageUrl,
+                                    description: description,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              width: 150,
+                              height: 120,
+                              child: Card(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(4),
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        height: 150,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                              child: Image.network(
+                                                imageUrl,
+                                                width: 130,
+                                                height: 150,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              width: double.infinity,
+                                              child: Text(
+                                                '$title',
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Icon(Icons.remove_red_eye),
+                                              Text(
+                                                (ratingSnapshot.data ?? 0)
+                                                    .toString(), // แสดงคะแนนจาก Firestore
+                                                style: TextStyle(fontSize: 14),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        });
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
