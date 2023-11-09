@@ -27,6 +27,7 @@ class DetailPage extends StatefulWidget {
 }
 
 class _DetailPageState extends State<DetailPage> {
+  bool isFavorite = false;
   User? _user; // ทำให้ _user เป็น nullable
   late List<String> episodes = [];
   late List<String> episodeIds = [];
@@ -42,7 +43,95 @@ class _DetailPageState extends State<DetailPage> {
     fetchEpisodes();
   }
 
-  Stream<int> fetchRating(String episodeId) {
+  Stream<bool> checkFavoriteStory() {
+    // สร้างและคืนค่า Stream จาก Firestore ที่ติดตาม user_favorite ของเอกสารนี้
+    return FirebaseFirestore.instance
+        .collection("storys")
+        .doc(widget.id)
+        .snapshots()
+        .map((snapshot) {
+      if (snapshot.exists) {
+        final userFavorite = snapshot.data()?['user_favorite'] as List;
+        final userUid = FirebaseAuth.instance.currentUser?.uid;
+        return userUid != null && userFavorite.contains(userUid);
+      }
+      return false; // ถ้าไม่มีเอกสารหรือไม่มีฟิล "user_favorite"
+    });
+  }
+
+  Future<void> updateRatingStoryAndUser(bool isFavorite) async {
+    try {
+      final uid_user = _user?.uid;
+
+      // อ้างอิงไปยังเอกสารใน Firestore
+      final storyRef =
+          FirebaseFirestore.instance.collection("storys").doc(widget.id);
+
+      final document = await storyRef.get();
+
+      if (document.exists) {
+        // ตรวจสอบว่าฟิล "user_favorite" มีอยู่ในเอกสารหรือไม่
+        final userFavoriteExists =
+            document.data()!.containsKey('user_favorite');
+
+        // ตรวจสอบว่า UID ของผู้ใช้อยู่ในฟิล "user_favorite" หรือไม่
+        final userFavorite = userFavoriteExists
+            ? (document.data()!['user_favorite'] as List)
+            : [];
+
+        if (uid_user != null) {
+          if (userFavorite.contains(uid_user)) {
+            // UID ของผู้ใช้อยู่ใน "user_favorite", ดังนั้นลดคะแนน (-1) และลบ UID ออกจาก "user_favorite"
+            await storyRef.update({
+              'rating': FieldValue.increment(-1),
+              'user_favorite': FieldValue.arrayRemove([uid_user])
+            });
+            // Update the user document in the "users" collection
+            await FirebaseFirestore.instance
+                .collection("users")
+                .doc(uid_user)
+                .update({
+              'favorite': FieldValue.arrayRemove([widget.id])
+            });
+          } else {
+            // UID ของผู้ใช้ไม่อยู่ใน "user_favorite", ดังนั้นเพิ่มคะแนน (+1) และเพิ่ม UID เข้าไปใน "user_favorite"
+            await storyRef.update({
+              'rating': FieldValue.increment(1),
+              'user_favorite': FieldValue.arrayUnion([uid_user])
+            });
+            // Update the user document in the "users" collection
+            await FirebaseFirestore.instance
+                .collection("users")
+                .doc(uid_user)
+                .update({
+              'favorite': FieldValue.arrayUnion([widget.id])
+            });
+          }
+        }
+      }
+    } catch (e) {
+      print('เกิดข้อผิดพลาดในการอัปเดต rating และ favorite ใน Firestore: $e');
+    }
+  }
+
+  Future<int> getRatingStory() async {
+    try {
+      final storyRef =
+          FirebaseFirestore.instance.collection("storys").doc(widget.id);
+
+      final document = await storyRef.get();
+      if (document.exists) {
+        final rating = document.data()?['rating'] as int;
+        return rating ?? 0;
+      }
+      return 0; // ถ้าไม่มีเอกสารหรือไม่มีฟิล "rating"
+    } catch (e) {
+      print('Error fetching rating from Firestore: $e');
+      return 0; // ในกรณีที่เกิดข้อผิดพลาด
+    }
+  }
+
+  Stream<int> fetchRatingEP(String episodeId) {
     final episodeRef =
         FirebaseFirestore.instance.collection(widget.id).doc(episodeId);
 
@@ -217,30 +306,48 @@ class _DetailPageState extends State<DetailPage> {
                             Row(
                               children: [
                                 IconButton(
-                                  icon: Icon(
-                                    isPressed
-                                        ? Icons.favorite
-                                        : Icons
-                                            .favorite_border, // ใช้ Icons.favorite ถ้าถูกคลิก
-                                    color: isPressed
-                                        ? Colors.red
-                                        : Colors.grey, // ใช้สีแดงถ้าถูกคลิก
-                                    size: 24,
+                                  icon: StreamBuilder<bool>(
+                                    stream:
+                                        checkFavoriteStory(), // สร้างฟังก์ชันนี้เพื่อรับ Stream ในการติดตามการกด Favorite
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return CircularProgressIndicator();
+                                      } else if (snapshot.hasError) {
+                                        return Icon(
+                                          Icons.favorite_border,
+                                          color: Colors.white,
+                                          size: 24,
+                                        );
+                                      } else {
+                                        final isUserFavorite =
+                                            snapshot.data ?? false;
+                                        return Icon(
+                                          isUserFavorite
+                                              ? Icons.favorite
+                                              : Icons.favorite_border,
+                                          color: Colors.white,
+                                          size: 24,
+                                        );
+                                      }
+                                    },
                                   ),
                                   onPressed: () {
                                     setState(() {
-                                      isPressed = !isPressed;
-                                      count = isPressed ? 1 : 0;
+                                      isFavorite = !isFavorite;
                                     });
+
+                                    updateRatingStoryAndUser(isFavorite);
                                   },
                                 ),
-                                Text(
-                                  '$count',
-                                  style: TextStyle(
-                                    fontWeight: isPressed
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                                  ),
+                                FutureBuilder<int>(
+                                  future: getRatingStory(),
+                                  builder: (context, snapshot) {
+                                    return Text(
+                                      '${snapshot.data ?? 0}',
+                                      style: TextStyle(fontSize: 16),
+                                    );
+                                  },
                                 ),
                               ],
                             ),
@@ -474,8 +581,8 @@ class _DetailPageState extends State<DetailPage> {
                                       Icon(Icons.favorite, color: Colors.white),
                                       //  แสดง data
                                       StreamBuilder<int>(
-                                        stream:
-                                            fetchRating(episodeIds[entry.key]),
+                                        stream: fetchRatingEP(
+                                            episodeIds[entry.key]),
                                         builder: (context, snapshot) {
                                           if (snapshot.connectionState ==
                                               ConnectionState.waiting) {
