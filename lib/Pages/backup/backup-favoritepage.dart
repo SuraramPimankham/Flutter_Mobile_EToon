@@ -1,3 +1,4 @@
+import 'package:apptoon/Pages/backup/backup-detailpage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -43,23 +44,19 @@ class _MyFavoritePageState extends State<MyFavoritePage> {
     return DefaultTabController(
       length: myTabs.length,
       child: Scaffold(
-          appBar: AppBar(
-            title: Text('รายการที่มีการถูกใจ'),
-            bottom: TabBar(
-              tabs: myTabs,
-              isScrollable: true, // เพิ่มค่า isScrollable นี้
-            ),
+        appBar: AppBar(
+          title: Text('รายการที่มีการถูกใจ'),
+          bottom: TabBar(
+            tabs: myTabs,
+            isScrollable: true,
           ),
-          body: TabBarView(
-            children: [
-              buildGridView('all', uid),
-              Center(child: Text('เนื้อหาแท็บ action')),
-              Center(child: Text('เนื้อหาแท็บ comedy')),
-              Center(child: Text('เนื้อหาแท็บ fantasy')),
-              Center(child: Text('เนื้อหาแท็บ horror')),
-              Center(child: Text('เนื้อหาแท็บ romance')),
-            ],
-          )),
+        ),
+        body: TabBarView(
+          children: List.generate(myTabs.length, (index) {
+            return buildGridView(index == 0 ? 'all' : myTabs[index].text!, uid);
+          }),
+        ),
+      ),
     );
   }
 
@@ -79,13 +76,12 @@ class _MyFavoritePageState extends State<MyFavoritePage> {
           return Center(child: Text('ไม่พบข้อมูลผู้ใช้'));
         }
 
-        // ดึงข้อมูลจาก field 'favorite' ใน collection 'users'
         List<dynamic> favoriteIds = userSnapshot.data!['favorite'] ?? [];
 
         return FutureBuilder<QuerySnapshot>(
           future: firestore
               .collection('storys')
-              .where('id', whereIn: favoriteIds)
+              .where('id', whereIn: favoriteIds.isNotEmpty ? favoriteIds : [''])
               .get(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -96,7 +92,13 @@ class _MyFavoritePageState extends State<MyFavoritePage> {
               return Center(child: Text('เกิดข้อผิดพลาด: ${snapshot.error}'));
             }
 
-            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            List<Map<String, dynamic>> filteredStories = snapshot.data!.docs
+                .map((doc) => doc.data() as Map<String, dynamic>)
+                .where((story) =>
+                    (category == 'all' || (story['categories'] as List).contains(category)))
+                .toList();
+
+            if (!snapshot.hasData || filteredStories.isEmpty) {
               return Center(child: Text('ไม่พบรายการที่ถูกใจ'));
             }
 
@@ -106,51 +108,71 @@ class _MyFavoritePageState extends State<MyFavoritePage> {
                 mainAxisSpacing: 8,
                 crossAxisSpacing: 8,
               ),
-              itemCount: snapshot.data!.docs.length,
+              itemCount: filteredStories.length,
               itemBuilder: (BuildContext context, int index) {
-                final storyData =
-                    snapshot.data!.docs[index].data() as Map<String, dynamic>;
+                final storyData = filteredStories[index];
 
-                // คำนวณขนาดของรูปภาพ
-                double imageWidth = 200; // กำหนดความกว้างของรูปภาพ
-                double imageHeight = 150; // กำหนดความสูงของรูปภาพ
+                double imageWidth = 200;
+                double imageHeight = 150;
 
                 return GestureDetector(
                   onTap: () {
-                    // ทำงานที่คุณต้องการเมื่อ Card ถูกคลิก
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DetailPage(
+                          id: storyData['id'],
+                          title: storyData['title'],
+                          author: storyData['author'],
+                          description: storyData['description'],
+                          imageUrl: storyData['imageUrl'],
+                        ),
+                      ),
+                    );
                     print('Card tapped: ${storyData['id']}');
                   },
-                  child: Card(
-                    elevation: 3,
-                    color: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ClipRRect(
-                          borderRadius:
-                              BorderRadius.vertical(top: Radius.circular(15.0)),
-                          child: Image.network(
-                            storyData['imageUrl'],
-                            width: double
-                                .infinity, // ทำให้รูปภาพมีความกว้างเท่ากับ Card
-                            height: 150, // กำหนดความสูงของรูปภาพ
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            storyData['title'],
-                            style: TextStyle(
-                              fontSize: 8,
-                              fontWeight: FontWeight.bold,
+                  child: Container(
+                    width: (MediaQuery.of(context).size.width - 40) / 3,
+                    height: 200,
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Card(
+                        elevation: 1,
+                        child: Container(
+                          width: 200,
+                          height: 200,
+                          child: Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: Column(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  child: Image.network(
+                                    storyData['imageUrl'],
+                                    fit: BoxFit.cover,
+                                    height: 140,
+                                    width: 100,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Expanded(
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      storyData['title'],
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              ],
                             ),
                           ),
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 );

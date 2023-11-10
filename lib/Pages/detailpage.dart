@@ -1,4 +1,4 @@
-import 'dart:ui';
+// import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -12,8 +12,7 @@ class DetailPage extends StatefulWidget {
   final String title;
   final String author;
   final String description;
-  final String imageUrl; 
-  
+  final String imageUrl;
 
   DetailPage({
     required this.id,
@@ -33,8 +32,8 @@ class _DetailPageState extends State<DetailPage> {
   late List<String> episodes = [];
   late List<String> episodeIds = [];
   String selectedEpisodeId = '';
-  bool isPressed = false;
-  int count = 0;
+  // bool isPressed = false;
+  // int count = 0;
 
   @override
   void initState() {
@@ -60,15 +59,13 @@ class _DetailPageState extends State<DetailPage> {
     });
   }
 
- Future<void> updateRatingStoryAndUser(bool isFavorite) async {
+  Future<void> updateRatingStoryAndUser(bool isFavorite) async {
     try {
       final uid_user = _user?.uid;
 
       // อ้างอิงไปยังเอกสารใน Firestore
       final storyRef =
           FirebaseFirestore.instance.collection("storys").doc(widget.id);
-
-          
 
       final document = await storyRef.get();
 
@@ -98,7 +95,7 @@ class _DetailPageState extends State<DetailPage> {
               'favorite': FieldValue.arrayRemove([widget.id])
             });
 
-             // เช็คหมวดหมู่ของเรื่อง
+            // เช็คหมวดหมู่ของเรื่อง
             final categories = document.data()!['categories'];
 
             if (categories != null) {
@@ -110,8 +107,6 @@ class _DetailPageState extends State<DetailPage> {
                     .update({categoryField: FieldValue.increment(-1)});
               }
             }
-
-           
           } else {
             // UID ของผู้ใช้ไม่อยู่ใน "user_favorite", ดังนั้นเพิ่มคะแนน (+1) และเพิ่ม UID เข้าไปใน "user_favorite"
             await storyRef.update({
@@ -146,7 +141,6 @@ class _DetailPageState extends State<DetailPage> {
       print('เกิดข้อผิดพลาดในการอัปเดต rating และ favorite ใน Firestore: $e');
     }
   }
-
 
   Future<int> getRatingStory() async {
     try {
@@ -254,6 +248,25 @@ class _DetailPageState extends State<DetailPage> {
     }
   }
 
+  Future<void> updatePurchasedEpisodes(
+      String uid, String toonId, String title, String episodeId) async {
+    try {
+      final userRef = FirebaseFirestore.instance.collection('users').doc(uid);
+
+      await userRef.update({
+        'purchasedEpisodes': FieldValue.arrayUnion([
+          {
+            'toonId': toonId,
+            'title': title,
+            'episodeId': episodeId,
+          }
+        ])
+      });
+    } catch (e) {
+      print('Error updating purchased episodes: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -264,7 +277,7 @@ class _DetailPageState extends State<DetailPage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Padding(
+             Padding(
               padding: EdgeInsets.all(5),
               child: Card(
                 clipBehavior: Clip.antiAliasWithSaveLayer,
@@ -393,7 +406,7 @@ class _DetailPageState extends State<DetailPage> {
                 ),
               ),
             ),
-             Padding(
+            Padding(
               padding: EdgeInsets.all(5),
               child: Card(
                 clipBehavior: Clip.antiAliasWithSaveLayer,
@@ -474,12 +487,19 @@ class _DetailPageState extends State<DetailPage> {
                                               // ลบเหรียญ 15 จาก Firestore
                                               await FirebaseFirestore.instance
                                                   .collection('users')
-                                                  .doc(_user
-                                                      ?.uid) // ใช้ null-aware operator ที่นี่
+                                                  .doc(_user?.uid ??
+                                                      '') // ใช้ null-aware operator ที่นี่
                                                   .update({
                                                 'coin':
                                                     FieldValue.increment(-15),
                                               });
+
+                                              // ทำการอัปเดตฟิลด์ purchasedEpisodes ใน Firestore
+                                              await updatePurchasedEpisodes(
+                                                  _user?.uid ?? '',
+                                                  widget.id,
+                                                  widget.title,
+                                                  episode_id);
 
                                               // ทำการนำทางไปยังหน้า EpisodePage
                                               Navigator.of(context).pop();
@@ -646,12 +666,12 @@ class _DetailPageState extends State<DetailPage> {
                                       color: Colors.black),
                                 ),
                             ],
-                          )),
+                          ),),
                     );
                   }).toList(),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
